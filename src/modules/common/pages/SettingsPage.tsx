@@ -1,10 +1,8 @@
-import { Container } from "react-bootstrap";
-
 const SettingsPage = () => {
   return (
-    <Container>
+    <div>
       <h2>settings</h2>
-    </Container>
+    </div>
   );
 };
 

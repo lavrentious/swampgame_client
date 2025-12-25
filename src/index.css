@@ -1,0 +1,50 @@
+/* fonts */
+@import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  /* Primary / highlight colors */
+  --color-primary: #7661c2;
+  --color-primary-hover: #5e4bb0;
+
+  /* Secondary / neutral colors */
+  --color-secondary: #373737;
+  --color-secondary-hover: #2d2d2d;
+
+  /* Surfaces */
+  --color-surface: #212121;
+  --color-surface-alt: #404040;
+
+  /* Text */
+  --color-text-primary: #fff;
+  --color-text-secondary: #ddd;
+
+  /* Status / labels */
+  --color-status-waiting: #4caf50;
+  --color-status-playing: #2196f3;
+
+  /* Font */
+  --font-base: "Segoe UI", "Inter", system-ui, sans-serif;
+
+  /* playing cards */
+  --color-background-playing-card: #eee;
+}
+
+@layer base {
+  a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+
+  a:hover {
+    color: var(--color-primary-hover);
+  }
+}
+
+body {
+  font-family: var(--font-base);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}

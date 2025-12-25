@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button, Container, Form, ListGroup } from "react-bootstrap";
 import { useCreateRoomMutation, useLazyGetRoomsQuery } from "../api";
 import { Room } from "../api/types";
 import { useStomp } from "../utils/useStomp";
@@ -51,38 +50,38 @@ const LobbyPage: React.FC = () => {
   }, [connected, fetch]);
 
   return (
-    <Container>
+    <div>
       <p>ws status: {connected ? "Connected" : "Not connected"}</p>
-      <Form onSubmit={createRoom}>
-        <Form.Control
+      <form onSubmit={createRoom}>
+        <input
           type="text"
           placeholder="Player name"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
         />
-        <Form.Control
+        <input
           type="text"
           placeholder="Room name"
           value={roomName}
           onChange={(e) => setRoomName(e.target.value)}
         />
-        <Form.Control
+        <input
           type="number"
           placeholder="Number of players"
           value={numPlayers}
           onChange={(e) => setNumPlayers(parseInt(e.target.value))}
         />
-        <Button type="submit">Create room</Button>
-      </Form>
+        <button type="submit">Create room</button>
+      </form>
 
-      <ListGroup>
+      <ul>
         {rooms?.map((room) => (
-          <ListGroup.Item key={room.roomId}>
+          <li key={room.roomId}>
             [{room.roomId}] {room.roomName}
-          </ListGroup.Item>
+          </li>
         ))}
-      </ListGroup>
-    </Container>
+      </ul>
+    </div>
   );
 };
 

@@ -7,8 +7,11 @@ export type RoomStatus =
   | "CANCELLED";
 
 export type Player = {
-  id: string;
-  name: string;
+  id: number;
+  firstName?: string;
+  imageUrl?: string;
+  isHost?: boolean;
+  isWaiting?: boolean;
 };
 
 export type Room = {

@@ -1,81 +1,167 @@
-import { useRawInitData } from "@telegram-apps/sdk-react";
-import axios, { AxiosError } from "axios";
-import { useCallback, useState } from "react";
-import { Button, Container, Form } from "react-bootstrap";
-import toast from "react-hot-toast";
+import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router";
+import Header from "src/modules/common/components/Header";
+import { Button } from "src/ui/components/Button";
+
+import PageLayout from "src/ui/components/PageLayout";
+import { Room } from "../api/types";
+import LobbyListItem from "../components/LobbyListItem";
+
+const testRooms: Room[] = [
+  {
+    roomId: 1,
+    roomName: "Kopytov Party",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 123,
+    currentPlayers: 3,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: false,
+  },
+  {
+    roomId: 2,
+    roomName: "Biden Party",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 123,
+    currentPlayers: 5,
+    maxPlayers: 5,
+    players: [],
+    status: "IN_PROGRESS",
+    hasPassword: true,
+  },
+  {
+    roomId: 3,
+    roomName: "Kripto Govno Party",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 456,
+    currentPlayers: 3,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: false,
+  },
+  {
+    roomId: 4,
+    roomName: "prikoling",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 789,
+    currentPlayers: 2,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: true,
+  },
+  {
+    roomId: 5,
+    roomName: "Lavrentious Party",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 111,
+    currentPlayers: 1,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: false,
+  },
+  {
+    roomId: 6,
+    roomName: "Trump Party",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 222,
+    currentPlayers: 4,
+    maxPlayers: 5,
+    players: [],
+    status: "IN_PROGRESS",
+    hasPassword: true,
+  },
+  {
+    roomId: 7,
+    roomName: "Party of 5 Stars",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 333,
+    currentPlayers: 2,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: false,
+  },
+  {
+    roomId: 8,
+    roomName: "Party of the Sun",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 444,
+    currentPlayers: 3,
+    maxPlayers: 5,
+    players: [],
+    status: "IN_PROGRESS",
+    hasPassword: true,
+  },
+  {
+    roomId: 9,
+    roomName: "Party of the Moon",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 555,
+    currentPlayers: 1,
+    maxPlayers: 5,
+    players: [],
+    status: "WAITING",
+    hasPassword: false,
+  },
+  {
+    roomId: 10,
+    roomName: "Party of the Stars",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 666,
+    currentPlayers: 4,
+    maxPlayers: 5,
+    players: [],
+    status: "IN_PROGRESS",
+    hasPassword: true,
+  },
+  {
+    roomId: 11,
+    roomName: "Party of the Universe",
+    createdAt: "2025-12-13T12:00:00Z",
+    creatorTgId: 777,
+    currentPlayers: 5,
+    maxPlayers: 5,
+    players: [],
+    status: "IN_PROGRESS",
+    hasPassword: true,
+  },
+];
 
 const MainPage = () => {
-  const [jwt, setJwt] = useState<string | null>(null);
-
-  const testFetch = useCallback(
-    () =>
-      axios
-        .get((import.meta.env.VITE_API_BASE_URL ?? "") + "/auth")
-        .then((r) => {
-          console.log(r);
-        }),
-    [],
-  );
-
-  const testServer = useCallback(() => {
-    toast.promise(testFetch(), {
-      loading: "loading",
-      success: "server ok",
-      error: "no connection",
-    });
-  }, [testFetch]);
-
-  const initDataRaw = useRawInitData();
-  console.log(initDataRaw);
-
-  const testInitData = useCallback(() => {
-    axios
-      .post((import.meta.env.VITE_API_BASE_URL ?? "") + "/auth/telegram", {
-        data: initDataRaw,
-      })
-      .then((r) => {
-        toast.success(JSON.stringify(r.data));
-        setJwt(r.data as string);
-      })
-      .catch((e) => {
-        toast.error(JSON.stringify(e));
-      });
-  }, [initDataRaw]);
-
-  const testJwt = useCallback(() => {
-    axios
-      .post((import.meta.env.VITE_API_BASE_URL ?? "") + "/auth/validate", jwt)
-      .then((r) => {
-        toast.success(JSON.stringify(r.data));
-      })
-      .catch((e: AxiosError) => {
-        toast.error(JSON.stringify(e.response?.data));
-      });
-  }, [jwt]);
+  const navigate = useNavigate();
 
   return (
-    <Container>
-      <div className="d-flex gap-2">
-        <Button onClick={testServer}>test server</Button>
-        <Button onClick={testInitData}>test init data</Button>
-        <Button onClick={testJwt} disabled={!jwt}>
-          test jwt
-        </Button>
-      </div>
-      <div>
-        <div className="d-flex gap-2">
-          <Form.Group className="d-flex flex-column">
-            <Form.Label>JWT</Form.Label>
-            <Form.Control
-              as="textarea"
-              value={jwt || ""}
-              onChange={(e) => setJwt(e.target.value)}
-              rows={5}
+    <PageLayout>
+      <PageLayout.Header>
+        <Header title="Lobbies" />
+      </PageLayout.Header>
+      <PageLayout.Body>
+        <div className="p-4">
+          {testRooms.map((room) => (
+            <LobbyListItem
+              key={room.roomId}
+              room={room}
+              onClick={() => navigate(`/lobby-waiting`)}
             />
-          </Form.Group>
+          ))}
         </div>
-      </div>
-    </Container>
+      </PageLayout.Body>
+      <PageLayout.Footer>
+        <div className="p-4">
+          <Button
+            className="w-full flex items-center justify-center gap-2"
+            onClick={() => navigate("/create-lobby")}
+          >
+            <FaPlus />
+            Create Lobby
+          </Button>
+        </div>
+      </PageLayout.Footer>
+    </PageLayout>
   );
 };
 
