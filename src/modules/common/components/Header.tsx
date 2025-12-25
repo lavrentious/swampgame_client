@@ -7,14 +7,18 @@ interface HeaderProps {
   title: string;
   backPath?: string;
   showUserPfp?: boolean;
+  showBackButton?: boolean;
   size?: "sm" | "lg";
+  children?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({
   title,
   backPath,
   showUserPfp = true,
+  showBackButton = true,
   size = "lg",
+  children,
 }) => {
   const navigate = useNavigate();
 
@@ -25,11 +29,15 @@ const Header: React.FC<HeaderProps> = ({
       <div
         className={`flex items-center gap-2 ${size === "sm" ? "gap-1" : "gap-2"}`}
       >
-        {backPath && <BackButton onClick={() => navigate(backPath)} />}
+        {showBackButton && <BackButton to={backPath} />}
+
         <h1 className={`font-bold ${size === "sm" ? "text-lg" : "text-2xl"}`}>
           {title}
         </h1>
       </div>
+
+      {children}
+
       {showUserPfp && (
         <UserPfp
           onClick={() => navigate("/profile")}

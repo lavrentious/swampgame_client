@@ -180,7 +180,8 @@ const GamePage = () => {
   return (
     <PageLayout>
       <PageLayout.Header className="relative z-0">
-        <Header title="Kopytov Party" size="sm" />
+        <Header title="Kopytov Party" size="sm" showBackButton={false} />
+
         <Button
           size="sm"
           onClick={() => setPlayerCount((p) => Math.min(12, p + 1))}

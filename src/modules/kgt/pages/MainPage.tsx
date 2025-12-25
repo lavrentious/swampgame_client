@@ -1,8 +1,9 @@
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import Header from "src/modules/common/components/Header";
 import { Button } from "src/ui/components/Button";
 
+import IconButton from "src/modules/common/components/IconButton";
 import PageLayout from "src/ui/components/PageLayout";
 import { Room } from "../api/types";
 import LobbyListItem from "../components/LobbyListItem";
@@ -137,7 +138,14 @@ const MainPage = () => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <Header title="Lobbies" />
+        <Header title="Lobbies" showBackButton={false}>
+          <div className="self-end">
+            <IconButton
+              icon={<FaShoppingCart />}
+              onClick={() => navigate("/shop")}
+            />
+          </div>
+        </Header>
       </PageLayout.Header>
       <PageLayout.Body>
         <div className="p-4">

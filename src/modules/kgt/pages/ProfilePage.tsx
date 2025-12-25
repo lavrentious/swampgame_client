@@ -21,7 +21,7 @@ const ProfilePage = () => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <Header title="My Profile" backPath="/" showUserPfp={false} />
+        <Header title="My Profile" showUserPfp={false} />
       </PageLayout.Header>
 
       <PageLayout.Body>

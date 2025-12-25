@@ -25,3 +25,9 @@ export type Room = {
   roomName: string;
   status: RoomStatus;
 };
+
+export type ShopItem = {
+  id: number;
+  title: string;
+  price: number;
+};
