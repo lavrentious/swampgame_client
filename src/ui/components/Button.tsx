@@ -22,12 +22,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const base =
-    "inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-200 focus:outline-none cursor-pointer";
+    "inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-100 focus:outline-none cursor-pointer active:scale-[0.9] transition-transform";
 
   const sizeClass = {
     sm: "h-8 text-sm p-3",
-    md: "h-10 text-base",
-    lg: "h-12 text-lg",
+    md: "h-10 text-base p-3",
+    lg: "h-12 text-lg p-4",
   }[size];
 
   const layoutClass = square ? "aspect-square px-0" : "";
@@ -40,8 +40,8 @@ export const Button: React.FC<ButtonProps> = ({
     secondary:
       "bg-[var(--color-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-secondary-hover)] active:bg-[var(--color-secondary-hover)]",
     success:
-      "bg-[var(--color-status-waiting)] text-white hover:bg-[var(--color-status-waiting)/80] active:bg-[var(--color-status-waiting)/80]",
-    info: "bg-[var(--color-status-playing)] text-white hover:bg-[var(--color-status-playing)/80] active:bg-[var(--color-status-playing)/80]",
+      "bg-[var(--color-status-waiting)] text-white hover:bg-[var(--color-status-waiting)/80] active:bg-[var(--color-status-waiting)/90]",
+    info: "bg-[var(--color-status-playing)] text-white hover:bg-[var(--color-status-playing)/80] active:bg-[var(--color-status-playing)/90]",
   }[variant];
 
   const buttonClass = clsx(
