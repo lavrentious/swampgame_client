@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { decodeJwtPayload } from "src/modules/common/api/utils";
 import { setCredentials } from "../store/authSlice";
 
 export interface TelegramAuthRequest {
@@ -12,8 +11,10 @@ export interface AuthUser {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: AuthUser;
+  jwt: string;
+
+  id: number;
+  telegramId: number;
 }
 
 export const authApi = createApi({
@@ -27,30 +28,17 @@ export const authApi = createApi({
         url: "/auth/telegram",
         method: "POST",
         body,
-        responseHandler: "text",
       }),
-
-      transformResponse: (jwt: string): AuthResponse => {
-        // FIXME: remove this jwt decoding
-        const payload = decodeJwtPayload<{
-          id: number;
-          telegramUser: { id: number };
-        }>(jwt);
-
-        const id = payload.id as number;
-        const telegramId = payload.telegramUser.id as number;
-
-        return {
-          accessToken: jwt,
-          user: { id, telegramId },
-        };
-      },
 
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          const {
+            data: { jwt, id, telegramId },
+          } = await queryFulfilled;
 
-          dispatch(setCredentials(data));
+          dispatch(
+            setCredentials({ accessToken: jwt, user: { id, telegramId } }),
+          );
         } catch {
           // ignore
         }

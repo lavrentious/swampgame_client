@@ -2,6 +2,7 @@ import { useRawInitData } from "@telegram-apps/sdk-react";
 import axios, { AxiosError } from "axios";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
+import Header from "src/modules/common/components/Header";
 import { Button } from "src/ui/components/Button";
 import { Input } from "src/ui/components/form/Input";
 import PageLayout from "src/ui/components/PageLayout";
@@ -38,7 +39,7 @@ const TestPage = () => {
       })
       .then((r) => {
         toast.success(JSON.stringify(r.data));
-        setJwt(r.data as string);
+        setJwt(r.data.jwt as string);
       })
       .catch((e) => {
         toast.error(JSON.stringify(e));
@@ -58,6 +59,9 @@ const TestPage = () => {
 
   return (
     <PageLayout>
+      <PageLayout.Header>
+        <Header title="test" backPath="/" />
+      </PageLayout.Header>
       <PageLayout.Body className="p-5">
         <div className="d-flex gap-2">
           <Button onClick={testServer}>test server</Button>
