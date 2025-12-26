@@ -11,6 +11,7 @@ type Props = {
   showBackButton?: boolean;
 
   showMenu?: boolean;
+  showUserPfp?: boolean;
 
   children: React.ReactNode;
   footer?: React.ReactNode;
@@ -23,6 +24,7 @@ const MainLayout: React.FC<Props> = ({
   footer,
   showBackButton = false,
   showMenu = false,
+  showUserPfp = true,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -35,6 +37,7 @@ const MainLayout: React.FC<Props> = ({
             backPath={backPath}
             showBackButton={showBackButton}
             showMenuButton={showMenu}
+            showUserPfp={showUserPfp}
             onMenuClick={showMenu ? () => setDrawerOpen(true) : undefined}
           />
         </PageLayout.Header>

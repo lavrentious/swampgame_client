@@ -35,7 +35,7 @@ const ProfilePage = () => {
   } = useFindUserByIdQuery(userId ?? skipToken);
 
   return (
-    <MainLayout title="My Profile" showBackButton>
+    <MainLayout title="My Profile" showBackButton showUserPfp={false}>
       <div className="mt-10 p-4">
         <UserPfp className="mx-auto mb-5" size={96} />
 

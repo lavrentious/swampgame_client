@@ -60,7 +60,7 @@ const TestPage = () => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <Header title="test" backPath="/" />
+        <Header title="test" showBackButton backPath="/" />
       </PageLayout.Header>
       <PageLayout.Body className="p-5">
         <div className="d-flex gap-2">
