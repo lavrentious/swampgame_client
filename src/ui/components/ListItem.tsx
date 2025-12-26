@@ -20,7 +20,8 @@ const ListItem: React.FC<ListItemProps> = ({
         "px-5 py-3 border-b-2 last:border-b-0 border-secondary cursor-pointer transition-colors duration-200",
         active && "bg-primary text-(--color-text-primary)",
         disabled && "opacity-50 cursor-not-allowed",
-        !active && !disabled && "hover:bg-gray-100",
+        !active && !disabled && "hover:bg-secondary-hover",
+        "first:rounded-t-xl last:rounded-b-xl",
         className,
       )}
       {...props}
