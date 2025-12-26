@@ -1,10 +1,10 @@
 import { useRawInitData } from "@telegram-apps/sdk-react";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
-import { useTelegramAuthMutation } from "src/modules/kgt/api/auth";
-import { setInitData } from "src/modules/kgt/store/authSlice";
+import { useTelegramAuthMutation } from "src/modules/auth/api/auth";
+import { formatApiError } from "src/modules/common/api/utils";
 import { useAppDispatch } from "src/store";
-import { formatApiError } from "../api/utils";
+import { setInitData } from "../store/authSlice";
 
 export function AuthBootstrap() {
   const initDataRaw = useRawInitData();

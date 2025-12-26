@@ -1,13 +1,13 @@
 import React from "react";
 import NotFoundPage from "src/modules/common/pages/NotFoundPage";
 import SettingsPage from "src/modules/common/pages/SettingsPage";
-import CreateLobby from "src/modules/kgt/pages/CreateLobby";
-import GamePage from "src/modules/kgt/pages/GamePage";
-import LobbyWaitingPage from "src/modules/kgt/pages/LobbyWaitingPage";
-import MainPage from "src/modules/kgt/pages/MainPage";
-import ProfilePage from "src/modules/kgt/pages/ProfilePage";
-import ShopPage from "src/modules/kgt/pages/ShopPage";
-import TestPage from "src/modules/kgt/pages/TestPage";
+import TestPage from "src/modules/common/pages/TestPage";
+import GamePage from "src/modules/game/pages/GamePage";
+import CreateLobby from "src/modules/lobbies/pages/CreateLobby";
+import MainPage from "src/modules/lobbies/pages/LobbiesListPage";
+import LobbyWaitingPage from "src/modules/lobbies/pages/LobbyWaitingPage";
+import ShopPage from "src/modules/shop/pages/ShopPage";
+import ProfilePage from "src/modules/users/pages/ProfilePage";
 
 export type Route = {
   path: string;

@@ -2,7 +2,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { useSelector } from "react-redux";
 import { Link } from "react-router";
 import MainLayout from "src/modules/common/components/MainLayout";
-import UserPfp from "src/modules/common/components/UserPfp";
+import UserPfp from "src/modules/users/components/UserPfp";
 import { RootState } from "src/store";
 
 import List from "src/ui/components/List";

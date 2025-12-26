@@ -2,14 +2,14 @@ import clsx from "clsx";
 import React from "react";
 import { FaClock, FaLock, FaUnlock, FaUsers } from "react-icons/fa";
 import { Badge } from "src/ui/components/Badge";
-import { Room, RoomStatus } from "../api/types";
+import { Lobby, LobbyStatus } from "../api/types";
 
 type LobbyListItemProps = {
-  room: Room;
+  room: Lobby;
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const statusColors: Record<RoomStatus, string> = {
+const statusColors: Record<LobbyStatus, string> = {
   WAITING: "bg-[var(--color-status-waiting)] text-white",
   STARTING: "bg-yellow-400 text-black",
   IN_PROGRESS: "bg-[var(--color-status-playing)] text-white",

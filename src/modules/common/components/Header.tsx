@@ -1,9 +1,9 @@
 import React from "react";
 import { FiMenu } from "react-icons/fi";
 import { useNavigate } from "react-router";
+import UserPfp from "src/modules/users/components/UserPfp";
 import { Button } from "src/ui/components/Button";
 import BackButton from "./BackButton";
-import UserPfp from "./UserPfp";
 
 interface HeaderProps {
   title: string;

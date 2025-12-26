@@ -2,8 +2,8 @@ import { useNavigate } from "react-router";
 import { Button } from "src/ui/components/Button";
 import PageLayout from "src/ui/components/PageLayout";
 import { Player } from "../api/types";
+import PlayersGrid from "../components/LobbyPlayersGrid";
 import LobbyStatusInfo from "../components/LobbyStatusInfo";
-import PlayersGrid from "../components/PlayersGrid";
 
 const players: Player[] = [
   { id: 1, firstName: "Igor" },

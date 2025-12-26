@@ -5,12 +5,11 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import toast from "react-hot-toast";
-import { authApi } from "src/modules/kgt/api/auth";
-import { setCredentials } from "src/modules/kgt/store/authSlice";
+import { authApi } from "src/modules/auth/api/auth";
+import { setCredentials } from "src/modules/auth/store/authSlice";
 import { AppDispatch, RootState } from "src/store";
 import { formatApiError } from "./utils";
 
-// Тип для входных данных baseQuery
 export interface BaseQueryOptions {
   baseUrl: string;
 }

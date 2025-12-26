@@ -2,10 +2,10 @@ import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import MainLayout from "src/modules/common/components/MainLayout";
 import { Button } from "src/ui/components/Button";
-import { Room } from "../api/types";
+import { Lobby } from "../api/types";
 import LobbyListItem from "../components/LobbyListItem";
 
-const testRooms: Room[] = [
+const testRooms: Lobby[] = [
   {
     roomId: 1,
     roomName: "Kopytov Party",
@@ -129,7 +129,7 @@ const testRooms: Room[] = [
   },
 ];
 
-const MainPage = () => {
+const LobbiesListPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -161,4 +161,4 @@ const MainPage = () => {
   );
 };
 
-export default MainPage;
+export default LobbiesListPage;

@@ -1,4 +1,4 @@
-export type RoomStatus =
+export type LobbyStatus =
   | "WAITING"
   | "STARTING"
   | "IN_PROGRESS"
@@ -14,7 +14,7 @@ export type Player = {
   isWaiting?: boolean;
 };
 
-export type Room = {
+export type Lobby = {
   createdAt: string;
   creatorTgId: number;
   currentPlayers: number;
@@ -23,11 +23,5 @@ export type Room = {
   players: Player[];
   roomId: number;
   roomName: string;
-  status: RoomStatus;
-};
-
-export type ShopItem = {
-  id: number;
-  title: string;
-  price: number;
+  status: LobbyStatus;
 };

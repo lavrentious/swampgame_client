@@ -49,7 +49,9 @@ export const ShopCard: React.FC<ShopCardProps> = ({
 
         <div className="h-0.5 w-full bg-white/90 mb-4 rounded" />
 
-        <h3 className="text-2xl font-bold text-white wrap-break-word">{title}</h3>
+        <h3 className="text-2xl font-bold text-white wrap-break-word">
+          {title}
+        </h3>
       </div>
 
       <div className="flex items-center justify-between mt-6">

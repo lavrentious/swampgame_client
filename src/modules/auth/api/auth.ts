@@ -1,21 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setCredentials } from "../store/authSlice";
-
-export interface TelegramAuthRequest {
-  data: string;
-}
-
-export interface AuthUser {
-  id: number;
-  telegramId: number;
-}
-
-export interface AuthResponse {
-  jwt: string;
-
-  id: number;
-  telegramId: number;
-}
+import { AuthResponse, TelegramAuthRequest } from "./types";
 
 export const authApi = createApi({
   reducerPath: "authApi",

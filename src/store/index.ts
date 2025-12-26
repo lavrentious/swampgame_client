@@ -5,15 +5,15 @@ import {
   ThunkAction,
 } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import { kgtApi } from "src/modules/kgt/api";
-import { authApi } from "src/modules/kgt/api/auth";
-import { shopApi } from "src/modules/kgt/api/shop";
-import { usersApi } from "src/modules/kgt/api/users";
-import authReducer from "src/modules/kgt/store/authSlice";
+import { authApi } from "src/modules/auth/api/auth";
+import authReducer from "src/modules/auth/store/authSlice";
+import { lobbiesApi } from "src/modules/lobbies/api/lobbies";
+import { shopApi } from "src/modules/shop/api/shop";
+import { usersApi } from "src/modules/users/api/users";
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  [kgtApi.reducerPath]: kgtApi.reducer,
+  [lobbiesApi.reducerPath]: lobbiesApi.reducer,
   [shopApi.reducerPath]: shopApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
@@ -23,7 +23,7 @@ const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      kgtApi.middleware,
+      lobbiesApi.middleware,
       shopApi.middleware,
       authApi.middleware,
       usersApi.middleware,

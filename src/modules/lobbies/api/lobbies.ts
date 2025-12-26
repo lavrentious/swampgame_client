@@ -1,17 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Room } from "./types";
+import { Lobby } from "./types";
 
-export const kgtApi = createApi({
-  reducerPath: "kgtApi",
+export const lobbiesApi = createApi({
+  reducerPath: "lobbiesApi",
   baseQuery: fetchBaseQuery({
     baseUrl: (import.meta.env.VITE_API_BASE_URL ?? "") + "/api",
   }),
   endpoints: (build) => ({
     // TODO: types
-    getRooms: build.query<Room[], void>({
+    getLobbies: build.query<Lobby[], void>({
       query: () => "/lobby",
     }),
-    createRoom: build.mutation<
+    createLobby: build.mutation<
       void,
       { roomName: string; creatorId: string; maxPlayers: number }
     >({
@@ -24,5 +24,4 @@ export const kgtApi = createApi({
   }),
 });
 
-export const { useGetRoomsQuery, useLazyGetRoomsQuery, useCreateRoomMutation } =
-  kgtApi;
+export const { useGetLobbiesQuery, useCreateLobbyMutation } = lobbiesApi;
