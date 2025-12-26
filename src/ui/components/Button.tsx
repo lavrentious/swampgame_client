@@ -25,12 +25,12 @@ export const Button: React.FC<ButtonProps> = ({
     "inline-flex items-center justify-center gap-2 font-semibold transition-colors duration-200 focus:outline-none cursor-pointer";
 
   const sizeClass = {
-    sm: "h-8 text-sm",
+    sm: "h-8 text-sm p-3",
     md: "h-10 text-base",
     lg: "h-12 text-lg",
   }[size];
 
-  const layoutClass = square ? "aspect-square px-0" : "px-5";
+  const layoutClass = square ? "aspect-square px-0" : "";
 
   const roundedClass = rounded ? "rounded-full" : "rounded-lg";
 

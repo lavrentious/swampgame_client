@@ -1,10 +1,7 @@
-import { FaPlus, FaShoppingCart } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router";
-import Header from "src/modules/common/components/Header";
+import MainLayout from "src/modules/common/components/MainLayout";
 import { Button } from "src/ui/components/Button";
-
-import IconButton from "src/modules/common/components/IconButton";
-import PageLayout from "src/ui/components/PageLayout";
 import { Room } from "../api/types";
 import LobbyListItem from "../components/LobbyListItem";
 
@@ -136,29 +133,10 @@ const MainPage = () => {
   const navigate = useNavigate();
 
   return (
-    <PageLayout>
-      <PageLayout.Header>
-        <Header title="Lobbies" showBackButton={false}>
-          <div className="self-end">
-            <IconButton
-              icon={<FaShoppingCart />}
-              onClick={() => navigate("/shop")}
-            />
-          </div>
-        </Header>
-      </PageLayout.Header>
-      <PageLayout.Body>
-        <div className="p-4">
-          {testRooms.map((room) => (
-            <LobbyListItem
-              key={room.roomId}
-              room={room}
-              onClick={() => navigate(`/lobby-waiting`)}
-            />
-          ))}
-        </div>
-      </PageLayout.Body>
-      <PageLayout.Footer>
+    <MainLayout
+      title="Lobbies"
+      showMenu
+      footer={
         <div className="p-4">
           <Button
             className="w-full flex items-center justify-center gap-2"
@@ -168,8 +146,18 @@ const MainPage = () => {
             Create Lobby
           </Button>
         </div>
-      </PageLayout.Footer>
-    </PageLayout>
+      }
+    >
+      <div className="p-4 space-y-2">
+        {testRooms.map((room) => (
+          <LobbyListItem
+            key={room.roomId}
+            room={room}
+            onClick={() => navigate(`/lobby-waiting`)}
+          />
+        ))}
+      </div>
+    </MainLayout>
   );
 };
 

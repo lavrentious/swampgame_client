@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import ListContext from "./ListContext";
 
 type ListProps = React.HTMLAttributes<HTMLUListElement> & {
   children: React.ReactNode;
@@ -14,16 +15,18 @@ const List: React.FC<ListProps> = ({
   ...props
 }) => {
   return (
-    <ul
-      className={clsx(
-        "bg-surface-alt rounded-2xl",
-        flush && "border-none rounded-none",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </ul>
+    <ListContext.Provider value={{ flush }}>
+      <ul
+        className={clsx(
+          "bg-surface-alt rounded-2xl",
+          flush && "border-none rounded-none",
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </ul>
+    </ListContext.Provider>
   );
 };
 
