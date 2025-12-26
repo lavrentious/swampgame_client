@@ -36,3 +36,19 @@ export function formatApiError(
 
   return t ? t("common.unknownError") : "Произошла неизвестная ошибка.";
 }
+
+export function decodeJwtPayload<T = unknown>(token: string): T {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid JWT token");
+  }
+
+  const base64Url = parts[1];
+  const base64 = base64Url
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(base64Url.length + ((4 - (base64Url.length % 4)) % 4), "=");
+
+  const json = atob(base64);
+  return JSON.parse(json);
+}

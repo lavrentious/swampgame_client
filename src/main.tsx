@@ -1,5 +1,4 @@
 import { init as initTMA, LaunchParamsRetrieveError } from "@telegram-apps/sdk";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import TmaErrorApp from "./TmaErrorApp";
@@ -10,11 +9,7 @@ const root = createRoot(document.getElementById("root")!);
 try {
   initTMA();
 
-  root.render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
+  root.render(<App />);
 } catch (e) {
   if (e instanceof LaunchParamsRetrieveError) {
     console.warn("Opened outside Telegram Mini App");
