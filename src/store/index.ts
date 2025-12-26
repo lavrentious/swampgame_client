@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { kgtApi } from "src/modules/kgt/api";
 import { authApi } from "src/modules/kgt/api/auth";
 import { shopApi } from "src/modules/kgt/api/shop";
+import { usersApi } from "src/modules/kgt/api/users";
 import authReducer from "src/modules/kgt/store/authSlice";
 
 const rootReducer = combineReducers({
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   [kgtApi.reducerPath]: kgtApi.reducer,
   [shopApi.reducerPath]: shopApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
+  [usersApi.reducerPath]: usersApi.reducer,
 });
 
 const store = configureStore({
@@ -24,6 +26,7 @@ const store = configureStore({
       kgtApi.middleware,
       shopApi.middleware,
       authApi.middleware,
+      usersApi.middleware,
     ),
 });
 
