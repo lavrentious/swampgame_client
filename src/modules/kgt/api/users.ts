@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { getBaseQuery } from "src/modules/common/api/base";
 
 export type User = {
   id: number;
@@ -11,9 +12,7 @@ export type User = {
 
 export const usersApi = createApi({
   reducerPath: "users",
-  baseQuery: fetchBaseQuery({
-    baseUrl: (import.meta.env.VITE_API_BASE_URL ?? "") + "/users",
-  }),
+  baseQuery: getBaseQuery({ baseUrl: "/users" }),
   endpoints: (build) => ({
     findAllUsers: build.query<User, void>({
       query: () => "/",
