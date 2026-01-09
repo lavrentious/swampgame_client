@@ -16,10 +16,10 @@ export type Route = {
 const routes: Route[] = [
   { element: <MainPage />, path: "/" },
   { element: <ShopPage />, path: "/shop" },
-  { element: <GamePage />, path: "/game" },
+  { element: <GamePage />, path: "/game/:id" },
   { element: <ProfilePage />, path: "/profile" },
   { element: <CreateLobby />, path: "/create-lobby" },
-  { element: <LobbyWaitingPage />, path: "/lobby-waiting" },
+  { element: <LobbyWaitingPage />, path: "/lobby/:id" },
   { element: <TestPage />, path: "/test" },
   { element: <SettingsPage />, path: "/settings" },
   { element: <NotFoundPage />, path: "/*" },

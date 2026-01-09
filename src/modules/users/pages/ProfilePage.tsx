@@ -15,7 +15,7 @@ const ProfileProperty: React.FC<{
 }> = ({ title, value }) => {
   return (
     <ListItem className="flex justify-between">
-      <span className="text-muted">{title}</span>
+      <span className="text-text-secondary">{title}</span>
       {typeof value === "string" || typeof value === "number" ? (
         <strong>{value}</strong>
       ) : (
@@ -26,7 +26,7 @@ const ProfileProperty: React.FC<{
 };
 
 const ProfilePage = () => {
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const userId = useSelector((state: RootState) => state.auth.user?.userId);
 
   const {
     data: user,
@@ -40,7 +40,7 @@ const ProfilePage = () => {
         <UserPfp className="mx-auto mb-5" size={96} />
 
         {isLoading && (
-          <p className="text-center text-gray-500">Loading profile…</p>
+          <p className="text-center text-muted">Loading profile…</p>
         )}
 
         {isError && (

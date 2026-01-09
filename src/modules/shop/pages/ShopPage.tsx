@@ -1,10 +1,14 @@
 import MainLayout from "src/modules/common/components/MainLayout";
+import { useAppSelector } from "src/store";
 import { Spinner } from "src/ui/components/Spinner";
 import { useGetShopItemsQuery } from "../api/shop";
 import { ShopCard } from "../components/ShopCard";
 
 const ShopPage = () => {
-  const { data: goods, isLoading } = useGetShopItemsQuery();
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const { data: goods, isLoading } = useGetShopItemsQuery(void 0, {
+    skip: !isAuthenticated,
+  });
 
   return (
     <MainLayout title="Shop" showBackButton backPath="/">

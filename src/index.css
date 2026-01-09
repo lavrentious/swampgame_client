@@ -1,5 +1,6 @@
 /* fonts */
 @import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 @import "tailwindcss";
 
@@ -11,6 +12,7 @@
   /* Secondary / neutral colors */
   --color-secondary: #373737;
   --color-secondary-hover: #2d2d2d;
+  --color-muted: #666;
 
   /* Surfaces */
   --color-surface: #212121;
@@ -47,4 +49,8 @@ body {
   font-family: var(--font-base);
   background-color: var(--color-surface);
   color: var(--color-text-primary);
+}
+
+hr {
+  border-color: var(--color-secondary);
 }

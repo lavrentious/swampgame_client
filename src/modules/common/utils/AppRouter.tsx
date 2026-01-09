@@ -10,22 +10,25 @@ function getRouteElement(route: RouteType): React.ReactNode {
   return route.element;
 }
 
-const AppRouter: React.FC<AppRouterProps> = ({ children }) => {
+const AppRouter: React.FC<AppRouterProps> & {
+  Routes: React.FC;
+} = ({ children }) => {
+  return <BrowserRouter>{children}</BrowserRouter>;
+};
+
+AppRouter.Routes = () => {
   return (
-    <BrowserRouter>
-      {children}
-      <Routes>
-        {routes.map((route) => {
-          return (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={getRouteElement(route)}
-            />
-          );
-        })}
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {routes.map((route) => {
+        return (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={getRouteElement(route)}
+          />
+        );
+      })}
+    </Routes>
   );
 };
 

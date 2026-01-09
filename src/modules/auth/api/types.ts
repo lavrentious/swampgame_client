@@ -3,13 +3,13 @@ export interface TelegramAuthRequest {
 }
 
 export interface AuthUser {
-  id: number;
+  userId: number;
   telegramId: number;
 }
 
 export interface AuthResponse {
   jwt: string;
 
-  id: number;
+  userId: number;
   telegramId: number;
 }

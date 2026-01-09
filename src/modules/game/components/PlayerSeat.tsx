@@ -15,7 +15,7 @@ const PlayerSeat: React.FC<{ player: Player; active?: boolean }> = ({
           active && "text-white",
         )}
       >
-        {player.firstName}
+        {player.displayName}
       </span>
     </div>
   );

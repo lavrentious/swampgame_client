@@ -32,10 +32,10 @@ const PlayerPfp: React.FC<PlayerAvatarProps> = ({
 
       <div className="text-center">
         {isWaiting ? (
-          <span className="text-white/40">waiting ..</span>
+          <span className="text-white/40">Waiting...</span>
         ) : (
           <>
-            <div className="text-white">{name}</div>
+            <div className="text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-20">{name}</div>
             {isHost && <div className="text-sm text-primary">host</div>}
           </>
         )}

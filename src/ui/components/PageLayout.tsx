@@ -10,6 +10,7 @@ const PageLayout: React.FC<Props> & {
   Header: React.FC<Props>;
   Body: React.FC<Props>;
   Footer: React.FC<Props>;
+  Sticky: React.FC<Props>;
 } = ({ children, className }) => {
   return (
     <div className={clsx("h-screen flex flex-col", className)}>{children}</div>
@@ -30,6 +31,10 @@ PageLayout.Body = ({ children, className }) => {
 
 PageLayout.Footer = ({ children, className }) => {
   return <footer className={clsx("shrink-0", className)}>{children}</footer>;
+};
+
+PageLayout.Sticky = ({ children, className }) => {
+  return <div className={clsx("sticky bottom-0", className)}>{children}</div>;
 };
 
 export default PageLayout;

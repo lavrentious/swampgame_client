@@ -4,16 +4,17 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
+import { Mutex } from "async-mutex";
 import toast from "react-hot-toast";
 import { authApi } from "src/modules/auth/api/auth";
-import { setCredentials } from "src/modules/auth/store/authSlice";
-import { AppDispatch, RootState } from "src/store";
+import { RootState } from "src/store";
 import { formatApiError } from "./utils";
 
 export interface BaseQueryOptions {
   baseUrl: string;
 }
 
+const mutex = new Mutex();
 export function getBaseQuery({
   baseUrl,
 }: BaseQueryOptions): BaseQueryFn<
@@ -31,36 +32,53 @@ export function getBaseQuery({
   });
 
   return async (args, api, extraOptions) => {
+    await mutex.waitForUnlock();
+
     let result = await rawBaseQuery(args, api, extraOptions);
 
+    const previousJwt = result.meta?.request.headers
+      .get("Authorization")
+      ?.slice(7);
+
     if (result.error && result.error.status === 401) {
-      console.log("unauthorized, refreshing token...");
+      if (!mutex.isLocked()) {
+        const release = await mutex.acquire();
 
-      try {
-        const dispatch: AppDispatch = api.dispatch;
-        const initData = (api.getState() as RootState).auth.initData;
+        const currentJwt = (api.getState() as RootState).auth.accessToken;
+        console.log({ previousJwt, currentJwt });
+        if (currentJwt && currentJwt !== previousJwt) {
+          console.log("token changed");
+          release();
+          return result;
+        }
 
-        if (!initData) throw new Error("No init data available for re-auth");
+        console.log("unauthorized, refreshing token...");
 
-        const authResult = await api
-          .dispatch(authApi.endpoints.telegramAuth.initiate({ data: initData }))
-          .unwrap();
-        console.log(authResult);
+        try {
+          const initData = (api.getState() as RootState).auth.initData;
 
-        dispatch(
-          setCredentials({
-            accessToken: authResult.jwt,
-            user: { id: authResult.id, telegramId: authResult.telegramId },
-          }),
-        );
+          if (!initData) throw new Error("No init data available for re-auth");
 
-        console.log("retrying request...");
+          await api
+            .dispatch(
+              authApi.endpoints.telegramAuth.initiate({ data: initData }),
+            )
+            .unwrap();
+
+          console.log("retrying request...");
+          result = await rawBaseQuery(args, api, extraOptions);
+        } catch (e) {
+          toast.error(
+            "Failed to refresh token: " +
+              formatApiError(e as FetchBaseQueryError),
+          );
+        } finally {
+          release();
+        }
+      } else {
+        console.log("waiting for token refresh...");
+        await mutex.waitForUnlock();
         result = await rawBaseQuery(args, api, extraOptions);
-      } catch (e) {
-        toast.error(
-          "Failed to refresh token: " +
-            formatApiError(e as FetchBaseQueryError),
-        );
       }
     }
 

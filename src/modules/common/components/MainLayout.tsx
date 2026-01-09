@@ -6,6 +6,9 @@ import { SideNav } from "./SideNav";
 
 type Props = {
   title: string;
+  header?: React.ReactNode;
+  leftSlot?: React.ReactNode;
+  rightSlot?: React.ReactNode;
 
   backPath?: string;
   showBackButton?: boolean;
@@ -19,6 +22,9 @@ type Props = {
 
 const MainLayout: React.FC<Props> = ({
   title,
+  header,
+  leftSlot,
+  rightSlot,
   backPath,
   children,
   footer,
@@ -39,7 +45,10 @@ const MainLayout: React.FC<Props> = ({
             showMenuButton={showMenu}
             showUserPfp={showUserPfp}
             onMenuClick={showMenu ? () => setDrawerOpen(true) : undefined}
+            leftSlot={leftSlot}
+            rightSlot={rightSlot}
           />
+          {header}
         </PageLayout.Header>
 
         <PageLayout.Body>{children}</PageLayout.Body>

@@ -5,12 +5,14 @@ interface AuthState {
   initData: string | null;
   accessToken: string | null;
   user: AuthUser | null;
+  isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   initData: null,
   accessToken: null,
   user: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
@@ -19,11 +21,17 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ accessToken: string; user: AuthUser }>,
+      action: PayloadAction<{ accessToken: string; user: AuthUser } | null>,
     ) => {
-      console.log("settings credentials:", action.payload);
-      state.accessToken = action.payload.accessToken;
-      state.user = action.payload.user;
+      if (action.payload) {
+        state.accessToken = action.payload.accessToken;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      } else {
+        state.accessToken = null;
+        state.user = null;
+        state.isAuthenticated = false;
+      }
     },
     logout: (state) => {
       state.accessToken = null;

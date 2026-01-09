@@ -1,20 +1,21 @@
-import { Player } from "../api/types";
 import PlayerPfp from "./PlayerPfp";
 
 type PlayersGridProps = {
-  players: Player[];
+  players: {
+    userId: number;
+    displayName: string;
+  }[];
+  hostUserId?: number;
 };
 
-const PlayersGrid: React.FC<PlayersGridProps> = ({ players }) => {
+const PlayersGrid: React.FC<PlayersGridProps> = ({ players, hostUserId }) => {
   return (
     <div className="grid grid-cols-3 gap-y-8 gap-x-6 justify-items-center">
       {players.map((p) => (
         <PlayerPfp
-          key={p.id}
-          name={p.firstName}
-          imageUrl={p.imageUrl}
-          isHost={p.isHost}
-          isWaiting={p.isWaiting}
+          key={p.userId}
+          name={p.displayName}
+          isHost={p.userId === hostUserId}
         />
       ))}
     </div>

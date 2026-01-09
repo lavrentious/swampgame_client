@@ -18,11 +18,13 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {
-            data: { jwt, id, telegramId },
+            data: { jwt, userId, telegramId },
           } = await queryFulfilled;
 
+          console.log("auth ok", { jwt, userId, telegramId });
+
           dispatch(
-            setCredentials({ accessToken: jwt, user: { id, telegramId } }),
+            setCredentials({ accessToken: jwt, user: { userId, telegramId } }),
           );
         } catch {
           // ignore

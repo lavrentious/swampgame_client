@@ -17,6 +17,7 @@
     "@telegram-apps/sdk": "^3.11.8",
     "@telegram-apps/sdk-react": "^3.3.9",
     "@types/sockjs-client": "^1.5.4",
+    "async-mutex": "^0.5.0",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "i18next": "^25.6.2",

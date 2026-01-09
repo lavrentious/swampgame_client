@@ -51,11 +51,12 @@ export const Button: React.FC<ButtonProps> = ({
     roundedClass,
     variantClass,
     fullWidth && !square && "w-full",
+    props.disabled && "opacity-50 pointer-events-none",
     className,
   );
 
   return (
-    <button className={buttonClass} {...props}>
+    <button className={buttonClass} {...props} disabled={props.disabled}>
       {children}
     </button>
   );

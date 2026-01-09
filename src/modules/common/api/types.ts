@@ -1,5 +1,5 @@
 export type GenericApiError = {
-  title: string;
-  details: string;
   timestamp: string;
+  message: string;
+  description: string;
 };

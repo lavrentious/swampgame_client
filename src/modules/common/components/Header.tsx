@@ -12,6 +12,8 @@ interface HeaderProps {
   showUserPfp?: boolean;
   showBackButton?: boolean;
 
+  onBackClick?: () => void;
+
   /** Shows hamburger button */
   showMenuButton?: boolean;
   onMenuClick?: () => void;
@@ -30,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({
   showBackButton = false,
   showMenuButton = false,
   onMenuClick,
+  onBackClick,
   size = "lg",
   leftSlot,
   rightSlot,
@@ -57,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({
           </Button>
         )}
 
-        {showBackButton && <BackButton to={backPath} />}
+        {showBackButton && <BackButton to={backPath} onClick={onBackClick} />}
 
         {leftSlot}
 

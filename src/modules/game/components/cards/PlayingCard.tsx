@@ -24,6 +24,7 @@ export interface PlayingCardProps extends React.HTMLAttributes<HTMLDivElement> {
   clickable?: boolean;
   cardDisabled?: boolean;
   required?: boolean;
+  selected?: boolean;
 }
 
 const dimensionsMap = {
@@ -40,6 +41,7 @@ const PlayingCard: React.FC<PlayingCardProps> = ({
   clickable,
   cardDisabled,
   required,
+  selected,
   ...props
 }) => {
   const cardStyle: CardStyle = CardStyle.MIRRORED;
@@ -54,9 +56,13 @@ const PlayingCard: React.FC<PlayingCardProps> = ({
         ...dimensions,
         ...style,
         color: color,
+        boxShadow: selected ? `0 0 20px 4px var(--color-primary)` : undefined,
       }}
       className={clsx(
         "flex flex-col p-1 bg-background-playing-card rounded border border-primary items-center",
+        "transition-shadow duration-200",
+        "transition-transform",
+        { "-translate-y-5": selected },
         className,
         {
           clickable: !cardDisabled && clickable,

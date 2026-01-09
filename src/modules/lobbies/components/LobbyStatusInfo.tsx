@@ -1,16 +1,20 @@
+import clsx from "clsx";
+
 type LobbyStatusInfoProps = {
   current: number;
   max: number;
-  isHost: boolean;
-};
+  isHost?: boolean;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const LobbyStatusInfo: React.FC<LobbyStatusInfoProps> = ({
   current,
   max,
   isHost,
+  className,
+  ...props
 }) => {
   return (
-    <div className="text-center space-y-3">
+    <div className={clsx("text-center space-y-3", className)} {...props}>
       <div className="text-2xl font-semibold">
         {current}/{max}
       </div>
