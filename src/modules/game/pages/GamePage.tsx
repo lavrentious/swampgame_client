@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Navigate, useNavigate, useParams } from "react-router";
@@ -56,6 +57,14 @@ const GamePage = () => {
   const [roundNumber, setRoundNumber] = useState(0);
   const [lastSwapTimestamp, setLastSwapTimestamp] = useState(Date.now());
   const [progress, setProgress] = useState(0);
+  const [firstFoldedUserId, setFirstFoldedUserId] = useState<number | null>(
+    null,
+  );
+  const foldOrderNumber = useMemo(() => {
+    if (!cachedLobby) return null;
+    return cachedLobby.players.find((p) => p.userId === user?.userId)
+      ?.foldOrderNumber;
+  }, [cachedLobby, user?.userId]);
 
   const chooseCardRef = useRef<(idx: number) => void>(() => {});
   const chosenCardIdxRef = useRef<number | null>(null);
@@ -66,6 +75,20 @@ const GamePage = () => {
 
   /* -------------------- Derived state -------------------- */
   const [folded, setFolded] = useState<boolean>(false);
+
+  const highlightCards = useMemo(() => {
+    if (!userCards) return false;
+    return userCards.every((c) => c.value === userCards[0].value);
+  }, [userCards]);
+  const highlightFold = useMemo(() => {
+    if (highlightCards) return true;
+    if (firstFoldedUserId != null && !folded) return true;
+  }, [firstFoldedUserId, folded, highlightCards]);
+  const dimCards = useMemo(() => {
+    if (highlightCards) return false;
+    if (firstFoldedUserId != null && firstFoldedUserId != user?.userId)
+      return true;
+  }, [firstFoldedUserId, highlightCards, user?.userId]);
 
   const displayPlayers = useMemo(() => {
     if (!cachedLobby || !user) return [];
@@ -169,7 +192,7 @@ const GamePage = () => {
         case WsEventType.GAME_FIRST_FOLD_PROCESSED:
           console.log("First fold processed", msg.payload);
           toast(msg.payload, { icon: "🎉" });
-          console.log(`user ${msg.userId} folded first!`);
+          setFirstFoldedUserId(msg.userId);
           break;
 
         default:
@@ -216,11 +239,19 @@ const GamePage = () => {
     console.log("syncing game state...");
 
     // sync last swap timestamp
-    console.log(
-      `last swap: ${freshLobby.lastSwapTimestamp} (${(Date.now() - freshLobby.lastSwapTimestamp!) / 1000}s ago)`,
-    );
+    // console.log(
+    //   `last swap: ${freshLobby.lastSwapTimestamp} (${(Date.now() - freshLobby.lastSwapTimestamp!) / 1000}s ago)`,
+    // );
     if (freshLobby.lastSwapTimestamp) {
       setLastSwapTimestamp(freshLobby.lastSwapTimestamp);
+    }
+
+    // sync first folded
+    const firstFoldedUserId = freshLobby.players.find(
+      (p) => p.foldOrderNumber === 1,
+    )?.userId;
+    if (firstFoldedUserId) {
+      setFirstFoldedUserId(firstFoldedUserId);
     }
 
     // sync folded state
@@ -283,18 +314,23 @@ const GamePage = () => {
           iconRotation={roundNumber * (360 / cachedLobby.players.length)}
         />
 
-        <div className="px-4 w-full">
-          <ProgressBar
-            className="my-2"
-            progress={progress}
-            animated
-            label={`${((progress / 100) * lobby.moveTimeout).toFixed(1)}s left`}
-          />
-        </div>
+        {!firstFoldedUserId && !folded && (
+          <div className="px-4 w-full">
+            <ProgressBar
+              className="my-2"
+              progress={progress}
+              animated
+              label={`${((progress / 100) * lobby.moveTimeout).toFixed(1)}s left`}
+            />
+          </div>
+        )}
 
         <div className="flex gap-3">
           {folded ? (
-            <h2>You have finished, congrats</h2>
+            <div className="text-center">
+              <h2>You have folded and took #{foldOrderNumber} place</h2>
+              <h4 className="text-muted">Waiting for others...</h4>
+            </div>
           ) : userCards ? (
             userCards.map((card, i) => (
               <PlayingCard
@@ -302,6 +338,10 @@ const GamePage = () => {
                 card={card}
                 selected={i === chosenCardIdx}
                 onClick={() => chooseCard(i)}
+                className={clsx(
+                  highlightCards && !folded && "highlight-card",
+                  dimCards && "brightness-50",
+                )}
               />
             ))
           ) : (
@@ -312,7 +352,19 @@ const GamePage = () => {
 
       <PageLayout.Footer>
         <div className="p-4">
-          <Button className="w-full py-4" onClick={foldCards} disabled={folded}>
+          <Button
+            className={clsx(
+              "w-full py-4 transition-all",
+              highlightFold &&
+                !folded && [
+                  "highlight-button",
+                  "ring-2 ring-amber-400",
+                  "bg-amber-500 text-black hover:bg-amber-400",
+                ],
+            )}
+            onClick={foldCards}
+            disabled={folded}
+          >
             GOVNO
           </Button>
         </div>
