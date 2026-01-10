@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { setUserState } from "src/modules/app/store/appSlice";
 import Header from "src/modules/common/components/Header";
+import { WsMessage } from "src/modules/game/api/types";
+import { useStomp } from "src/modules/game/hooks/useStomp";
 import { useAppDispatch, useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
 import ConnectionIcon from "src/ui/components/ConnectionIcon";
@@ -69,6 +71,25 @@ const LobbyWaitingPage = () => {
   // sockets
   const { connected } = useGlobalLobbyStomp();
 
+  // listen to game start
+  const onGameSocketMsg = useCallback(
+    (msg: WsMessage) => {
+      console.log("lobby waiting page got game ws msg", msg);
+      if (msg.eventType === "GAME_STARTED") {
+        toast("Game started, have fun!", { icon: "🔥" });
+        navigate(`/game/${lobbyId}`);
+      }
+    },
+    [lobbyId, navigate],
+  );
+  const jwt = useAppSelector((s) => s.auth.accessToken!);
+  const { connected: gameConnected } = useStomp({
+    url: "/user/queue/private",
+    jwt,
+    onMessage: onGameSocketMsg,
+    skip: !isAuth,
+  });
+
   // render
   if (
     !user ||
@@ -114,7 +135,12 @@ const LobbyWaitingPage = () => {
           }}
           backPath="/lobbies"
           showUserPfp={false}
-          rightSlot={<ConnectionIcon connected={connected} />}
+          rightSlot={
+            <div className="flex gap-2">
+              <ConnectionIcon connected={connected} />
+              <ConnectionIcon connected={gameConnected} />
+            </div>
+          }
         />
 
         <div className="flex flex-col items-center justify-center text-center px-6 pt-12 gap-10 flex-1">
