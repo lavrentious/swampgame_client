@@ -34,9 +34,11 @@ const CreateLobby = () => {
       };
       console.log("submit data", data);
       createLobby({
+        name: lobbyName,
         hostUserId: userId,
         capacity: playersAmount,
         moveTimeout: lobbyTimeout,
+        isPrivate: false,
       })
         .unwrap()
         .then((res) => {

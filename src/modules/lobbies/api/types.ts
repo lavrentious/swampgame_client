@@ -54,8 +54,14 @@ export type LobbyWithCache = { lobby: Lobby; cached: CachedLobby };
 // create
 
 export type CreateLobbyRequest = {
+  name: string;
+
   hostUserId: number;
   capacity: number;
+
+  isPrivate: boolean;
+  password?: string;
+
   moveTimeout: number;
 };
 
