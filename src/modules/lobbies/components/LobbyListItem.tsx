@@ -6,8 +6,8 @@ import { useNavigate } from "react-router";
 import { setUserState } from "src/modules/app/store/appSlice";
 import { useAppDispatch, useAppSelector } from "src/store";
 import { Badge } from "src/ui/components/Badge";
-import { useGetCachedLobbyQuery, useJoinLobbyMutation } from "../api/lobbies";
-import { Lobby, LobbyState } from "../api/types";
+import { useJoinLobbyMutation } from "../api/lobbies";
+import { CachedLobby, Lobby, LobbyState } from "../api/types";
 
 const lobbyStateConfig: Record<
   LobbyState,
@@ -58,14 +58,14 @@ const getLobbyStateDisplay = (state: LobbyState) => {
 
 type LobbyListItemProps = {
   lobby: Lobby;
+  cachedLobby: CachedLobby;
   className?: string;
-  showOfflineLobbies?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const LobbyListItem: React.FC<LobbyListItemProps> = ({
   lobby,
+  cachedLobby,
   className,
-  showOfflineLobbies = true,
   ...props
 }) => {
   const [joinLobby] = useJoinLobbyMutation();
@@ -74,18 +74,11 @@ const LobbyListItem: React.FC<LobbyListItemProps> = ({
 
   const userId = useAppSelector((state) => state.auth.user?.userId);
 
-  const { data: cachedLobby, isLoading } = useGetCachedLobbyQuery(lobby.id);
-
-  const showDynamicContent = !!cachedLobby;
-
   return (
     <div
       className={clsx(
         "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer",
         className,
-        {
-          hidden: !showOfflineLobbies && !cachedLobby,
-        },
       )}
       {...props}
       onClick={() => {
@@ -105,38 +98,24 @@ const LobbyListItem: React.FC<LobbyListItemProps> = ({
       }}
     >
       <div className="flex justify-between items-center mb-2">
-        <span className="font-bold text-lg truncate">{lobby.name}</span>
+        <span className="font-bold text-lg truncate">
+          {lobby.name} <span className="text-muted">#{lobby.id}</span>
+        </span>
 
-        {isLoading ? (
-          <Badge colorClass="bg-gray-500 text-white" rounded>
-            Loading...
-          </Badge>
-        ) : showDynamicContent ? (
-          (() => {
-            const config = getLobbyStateDisplay(cachedLobby.lobbyState);
-            return (
-              <Badge colorClass={config.colorClass} rounded>
-                {config.label}
-              </Badge>
-            );
-          })()
-        ) : (
-          <Badge colorClass="bg-gray-600 text-white" rounded>
-            Offline
-          </Badge>
-        )}
+        {(() => {
+          const config = getLobbyStateDisplay(cachedLobby.lobbyState);
+          return (
+            <Badge colorClass={config.colorClass} rounded>
+              {config.label}
+            </Badge>
+          );
+        })()}
       </div>
 
       <div className="flex justify-between text-sm text-gray-200">
-        {isLoading || !showDynamicContent ? (
-          <span className="flex items-center gap-1">
-            <FaUsers /> — / {lobby.capacity}
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <FaUsers /> {cachedLobby.players.length}/{cachedLobby.capacity}
-          </span>
-        )}
+        <span className="flex items-center gap-1">
+          <FaUsers /> {cachedLobby.players.length}/{cachedLobby.capacity}
+        </span>
 
         <span className="flex items-center gap-1">
           <FaClock /> {lobby.moveTimeout} sec

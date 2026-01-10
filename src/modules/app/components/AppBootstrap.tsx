@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useGetCachedLobbyQuery } from "src/modules/lobbies/api/lobbies";
+import { useGlobalLobbyStomp } from "src/modules/lobbies/hooks/useGlobalLobbyStomp";
 import { useAppSelector } from "src/store";
 import { useGetMyStateQuery } from "../api/app";
 
@@ -19,6 +20,8 @@ export function AppBootstrap() {
   const { data: cachedLobby } = useGetCachedLobbyQuery(
     data?.status === "in_lobby" ? data.lobbyId : skipToken,
   );
+
+  useGlobalLobbyStomp();
 
   useEffect(() => {
     if (!isSuccess || !data || data.status !== "in_lobby" || !cachedLobby)

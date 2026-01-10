@@ -49,7 +49,7 @@ export type CachedLobby = {
   lastMoveTimestamp: number;
 };
 
-export type LobbyWithCache = Lobby & { cached: CachedLobby };
+export type LobbyWithCache = { lobby: Lobby; cached: CachedLobby };
 
 // create
 

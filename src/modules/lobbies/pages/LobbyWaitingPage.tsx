@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import { HiSignal, HiSignalSlash } from "react-icons/hi2";
 import { Link, useNavigate, useParams } from "react-router";
 import Header from "src/modules/common/components/Header";
-import { useStomp } from "src/modules/game/hooks/useStomp";
 import { useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
+import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import PageLayout from "src/ui/components/PageLayout";
 import {
   useGetCachedLobbyQuery,
@@ -13,7 +12,6 @@ import {
   useLeaveLobbyMutation,
   useStartLobbyMutation,
 } from "../api/lobbies";
-import { LobbyWsMessage } from "../api/types";
 import PlayersGrid from "../components/LobbyPlayersGrid";
 import LobbyStatusInfo from "../components/LobbyStatusInfo";
 
@@ -32,9 +30,6 @@ const LobbyWaitingPage = () => {
 
   const user = useAppSelector((s) => s.auth.user);
   const userState = useAppSelector((state) => state.app.userState);
-  const [players, setPlayers] = useState<
-    { userId: number; displayName: string }[] | null
-  >(null);
 
   useEffect(() => {
     if (
@@ -52,24 +47,11 @@ const LobbyWaitingPage = () => {
   const { data: lobby, isLoading: isLoadingLobby } = useGetLobbyQuery(lobbyId, {
     skip: !isAuth || Number.isNaN(lobbyId),
   });
-  const {
-    data: cachedLobby,
-    isLoading: isLoadingCachedLobby,
-    refetch: refetchCachedLobby,
-  } = useGetCachedLobbyQuery(lobbyId, {
-    skip: !isAuth || Number.isNaN(lobbyId),
-  });
-
-  useEffect(() => {
-    if (!cachedLobby) return;
-    console.log("cached lobby updated, updating local players...");
-    setPlayers(
-      cachedLobby.players.map((p) => ({
-        userId: p.userId,
-        displayName: p.displayName,
-      })),
-    );
-  }, [cachedLobby]);
+  const { data: cachedLobby, isLoading: isLoadingCachedLobby } =
+    useGetCachedLobbyQuery(lobbyId, {
+      skip: !isAuth || Number.isNaN(lobbyId),
+      pollingInterval: 5000,
+    });
 
   const isHost = useMemo(() => {
     return cachedLobby?.hostUserId === user?.userId;
@@ -82,44 +64,7 @@ const LobbyWaitingPage = () => {
   }, [cachedLobby, lobbyId, navigate]);
 
   // sockets
-  const onSocketMsg = useCallback(
-    (msg: LobbyWsMessage) => {
-      console.log("lobby msg", msg);
-      if (msg.lobbyId !== lobbyId) return;
-      if (msg.eventType === "PLAYER_JOINED_LOBBY") {
-        setPlayers((prev) => {
-          if (!prev) return prev;
-          return [
-            ...prev,
-            {
-              userId: msg.userId,
-              displayName: msg.displayName,
-            },
-          ];
-        });
-      } else if (msg.eventType === "PLAYER_LEFT_LOBBY") {
-        setPlayers((prev) => {
-          if (!prev) return prev;
-          return prev.filter((p) => p.userId !== msg.userId);
-        });
-      }
-    },
-    [lobbyId],
-  );
-
-  const jwt = useAppSelector((state) => state.auth.accessToken!);
-  const { connected } = useStomp({
-    url: `/topic/lobbies`,
-    onMessage: onSocketMsg,
-    jwt,
-    skip: !isAuth || Number.isNaN(lobbyId),
-  });
-
-  useEffect(() => {
-    if (connected) {
-      refetchCachedLobby();
-    }
-  }, [connected, refetchCachedLobby]);
+  const connected = true;
 
   // render
   if (
@@ -169,18 +114,12 @@ const LobbyWaitingPage = () => {
           }}
           backPath="/lobbies"
           showUserPfp={false}
-          rightSlot={
-            connected ? (
-              <HiSignal className="text-green-500" />
-            ) : (
-              <HiSignalSlash className="text-red-500" />
-            )
-          }
+          rightSlot={<ConnectionIcon connected={connected} />}
         />
 
         <div className="flex flex-col items-center justify-center text-center px-6 pt-12 gap-10 flex-1">
           <PlayersGrid
-            players={players || []}
+            players={cachedLobby.players || []}
             hostUserId={cachedLobby.hostUserId}
           />
         </div>
@@ -188,7 +127,7 @@ const LobbyWaitingPage = () => {
         <PageLayout.Sticky className="w-full flex justify-center">
           <LobbyStatusInfo
             className="max-w-50 bg-surface-alt px-4 py-3 rounded-t-xl"
-            current={players?.length ?? 0}
+            current={cachedLobby.players.length ?? 0}
             max={lobby.capacity}
             isHost={isHost}
           />

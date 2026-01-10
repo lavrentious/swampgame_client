@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { HiSignal, HiSignalSlash } from "react-icons/hi2";
 import { Navigate, useParams } from "react-router";
 import Header from "src/modules/common/components/Header";
 import {
@@ -9,6 +8,7 @@ import {
 } from "src/modules/lobbies/api/lobbies";
 import { useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
+import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import PageLayout from "src/ui/components/PageLayout";
 import { useSwapCardsMutation } from "../api/game";
 import { WsEventType, WsMessage } from "../api/types";
@@ -185,13 +185,7 @@ const GamePage = () => {
           title={lobby.name}
           size="sm"
           showBackButton={false}
-          rightSlot={
-            connected ? (
-              <HiSignal className="text-green-500" />
-            ) : (
-              <HiSignalSlash className="text-red-500" />
-            )
-          }
+          rightSlot={<ConnectionIcon connected={connected} />}
         />
       </PageLayout.Header>
 

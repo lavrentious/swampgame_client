@@ -1,71 +1,61 @@
-import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
 import { FaPlus } from "react-icons/fa";
-import { HiSignal, HiSignalSlash } from "react-icons/hi2";
+import { FiRefreshCw } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { formatApiError } from "src/modules/common/api/utils";
+import IconButton from "src/modules/common/components/IconButton";
 import MainLayout from "src/modules/common/components/MainLayout";
-import { useStomp } from "src/modules/game/hooks/useStomp";
 import { useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
-import { Checkbox } from "src/ui/components/form/Checkbox";
+import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import { Spinner } from "src/ui/components/Spinner";
-import { useGetLobbiesQuery } from "../api/lobbies";
+import { useGetLobbiesWithCacheQuery } from "../api/lobbies";
 import LobbyListItem from "../components/LobbyListItem";
+import { useGlobalLobbyStomp } from "../hooks/useGlobalLobbyStomp";
 
 const LobbiesListPage = () => {
-  const [showOfflineLobbies, setShowOfflineLobbies] = useState(false);
-
   const navigate = useNavigate();
+
   const isAuth = useAppSelector((s) => s.auth.isAuthenticated);
 
   const {
     data: lobbies,
     isLoading,
+    isFetching,
     isError,
     error,
-  } = useGetLobbiesQuery(void 0, { skip: !isAuth });
+    refetch,
+  } = useGetLobbiesWithCacheQuery(void 0, {
+    skip: !isAuth,
+    pollingInterval: 5000,
+  });
 
   const renderCentered = (content: React.ReactNode) => (
     <div className="flex flex-1 items-center justify-center">{content}</div>
   );
 
-  const onSocketMsg = useCallback((msg: object) => {
-    console.log(msg);
-  }, []);
-  const jwt = useAppSelector((s) => s.auth.accessToken!);
-  const { connected } = useStomp({
-    url: "/topic/lobbies",
-    onMessage: onSocketMsg,
-    jwt,
-    parseJson: false,
-    skip: !isAuth,
-  });
+  const { connected } = useGlobalLobbyStomp();
 
   return (
     <MainLayout
       title="Lobbies"
-      header={
-        <>
-          <div className="px-5 py-2 bg-surface-alt rounded-xl mb-5">
-            <h2 className="text-lg font-semibold">Filters</h2>
-            <hr />
-            <div className="mt-5">
-              <Checkbox
-                label="Show offline lobbies"
-                checked={showOfflineLobbies}
-                onChange={(e) => setShowOfflineLobbies(e.target.checked)}
-              />
-            </div>
-          </div>
-          <hr />
-        </>
-      }
+      leftSlot={isLoading && <Spinner size="sm" />}
       rightSlot={
-        connected ? (
-          <HiSignal className="text-green-500" />
-        ) : (
-          <HiSignalSlash className="text-red-500" />
-        )
+        <div className="flex items-center gap-2">
+          <IconButton
+            size="sm"
+            icon={<FiRefreshCw />}
+            disabled={isLoading || isFetching}
+            onClick={() => {
+              toast.promise(refetch(), {
+                loading: "Refreshing lobbies...",
+                success: "Lobbies refreshed",
+                error: "Failed to refresh lobbies",
+              });
+            }}
+          />
+          <ConnectionIcon connected={connected} />
+        </div>
       }
       showMenu
       footer={
@@ -98,11 +88,11 @@ const LobbiesListPage = () => {
 
       {!isLoading && !isError && lobbies && lobbies.length > 0 && (
         <div className="p-4 space-y-2">
-          {lobbies.map((lobby) => (
+          {lobbies.map((l) => (
             <LobbyListItem
-              key={lobby.id}
-              lobby={lobby}
-              showOfflineLobbies={showOfflineLobbies}
+              key={l.lobby.id}
+              lobby={l.lobby}
+              cachedLobby={l.cached}
             />
           ))}
         </div>
