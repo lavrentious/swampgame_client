@@ -1,7 +1,7 @@
 // SideNav.tsx
 import clsx from "clsx";
 import { useCallback, useMemo } from "react";
-import { FaHome, FaShoppingCart, FaUser } from "react-icons/fa";
+import { FaHome, FaPeopleArrows, FaShoppingCart, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import List from "src/ui/components/List";
 
@@ -54,6 +54,11 @@ export const SideNav: React.FC<{ onNavigate?: () => void }> = ({
       title: "Profile",
       icon: <FaUser />,
       url: "/profile",
+    },
+    {
+      title: "Friends",
+      icon: <FaPeopleArrows />,
+      url: "/friends",
     },
   ];
 

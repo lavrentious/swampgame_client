@@ -5,16 +5,21 @@ type PlayerAvatarProps = {
   imageUrl?: string;
   isHost?: boolean;
   isWaiting?: boolean;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const PlayerPfp: React.FC<PlayerAvatarProps> = ({
   name,
   imageUrl,
   isHost,
   isWaiting,
+  className,
+  ...props
 }) => {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div
+      className={clsx("flex flex-col items-center gap-2", className)}
+      {...props}
+    >
       <div
         className={clsx(
           "w-20 h-20 rounded-full flex items-center justify-center text-xl font-semibold",
@@ -35,7 +40,9 @@ const PlayerPfp: React.FC<PlayerAvatarProps> = ({
           <span className="text-white/40">Waiting...</span>
         ) : (
           <>
-            <div className="text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-20">{name}</div>
+            <div className="text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-20">
+              {name}
+            </div>
             {isHost && <div className="text-sm text-primary">host</div>}
           </>
         )}

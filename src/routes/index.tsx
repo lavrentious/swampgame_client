@@ -8,6 +8,7 @@ import CreateLobby from "src/modules/lobbies/pages/CreateLobby";
 import MainPage from "src/modules/lobbies/pages/LobbiesListPage";
 import LobbyWaitingPage from "src/modules/lobbies/pages/LobbyWaitingPage";
 import ShopPage from "src/modules/shop/pages/ShopPage";
+import FriendsPage from "src/modules/users/pages/FriendsPage";
 import ProfilePage from "src/modules/users/pages/ProfilePage";
 
 export type Route = {
@@ -17,9 +18,11 @@ export type Route = {
 const routes: Route[] = [
   { element: <MainPage />, path: "/" },
   { element: <ShopPage />, path: "/shop" },
+  { element: <FriendsPage />, path: "/friends" },
   { element: <GamePage />, path: "/game/:id" },
   { element: <LeaderboardPage />, path: "/leaderboard/:id" },
   { element: <ProfilePage />, path: "/profile" },
+  { element: <ProfilePage />, path: "/profile/:id" },
   { element: <CreateLobby />, path: "/create-lobby" },
   { element: <LobbyWaitingPage />, path: "/lobby/:id" },
   { element: <TestPage />, path: "/test" },

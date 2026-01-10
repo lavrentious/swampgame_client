@@ -1,3 +1,4 @@
+import { useLaunchParams } from "@telegram-apps/sdk-react";
 import React from "react";
 import { FiMenu } from "react-icons/fi";
 import { useNavigate } from "react-router";
@@ -41,6 +42,9 @@ const Header: React.FC<HeaderProps> = ({
 
   const shouldShowMenu = showMenuButton && onMenuClick;
 
+  const { tgWebAppData: data } = useLaunchParams();
+  const photoUrl = data?.user?.photo_url;
+
   return (
     <header
       className={`flex items-center justify-between px-4 ${
@@ -75,6 +79,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {showUserPfp && (
           <UserPfp
+            photoUrl={photoUrl}
             onClick={() => navigate("/profile")}
             size={size === "sm" ? 32 : undefined}
           />

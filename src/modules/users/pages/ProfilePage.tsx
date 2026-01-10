@@ -1,13 +1,22 @@
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useSelector } from "react-redux";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import MainLayout from "src/modules/common/components/MainLayout";
 import UserPfp from "src/modules/users/components/UserPfp";
-import { RootState } from "src/store";
 
+import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { useMemo } from "react";
+import toast from "react-hot-toast";
+import { FaUserCheck, FaUserPlus } from "react-icons/fa";
+import { formatApiError } from "src/modules/common/api/utils";
+import IconButton from "src/modules/common/components/IconButton";
+import { useAppSelector } from "src/store";
 import List from "src/ui/components/List";
 import ListItem from "src/ui/components/ListItem";
-import { useFindUserByIdQuery } from "../api/users";
+import {
+  useAreFriendsQuery,
+  useFindUserByIdQuery,
+  useOfferFriendshipMutation,
+} from "../api/users";
 
 const ProfileProperty: React.FC<{
   title: string;
@@ -26,18 +35,54 @@ const ProfileProperty: React.FC<{
 };
 
 const ProfilePage = () => {
-  const userId = useSelector((state: RootState) => state.auth.user?.userId);
+  const { id } = useParams<{ id?: string }>();
+
+  const isAuth = useAppSelector((s) => s.auth.isAuthenticated);
+  const authUser = useAppSelector((s) => s.auth.user);
+
+  const userId = useMemo(() => {
+    if (id) return +id;
+    return authUser?.userId;
+  }, [authUser?.userId, id]);
 
   const {
     data: user,
     isLoading,
     isError,
-  } = useFindUserByIdQuery(userId ?? skipToken);
+  } = useFindUserByIdQuery(!userId || !isAuth ? skipToken : userId);
+
+  const [offerFriendship, { isLoading: isOfferFriendshipLoading }] =
+    useOfferFriendshipMutation();
+
+  const { tgWebAppData: data } = useLaunchParams();
+  const photoUrl = data?.user?.photo_url;
+
+  const isSelf = useMemo(() => {
+    if (!user || !authUser) return;
+    return user.id === authUser.userId;
+  }, [authUser, user]);
+
+  const { data: areFriends } = useAreFriendsQuery(
+    authUser && user && !isSelf
+      ? { user1: authUser.userId, user2: user.id }
+      : skipToken,
+  );
+
+  const pageTitle = useMemo<string>(() => {
+    if (isSelf) return "My Profile";
+    if (user) return `${user.username}'s profile`;
+    if (isLoading) return "Loading...";
+    return "Profile";
+  }, [isLoading, isSelf, user]);
 
   return (
-    <MainLayout title="My Profile" showBackButton showUserPfp={false}>
+    <MainLayout title={pageTitle} showBackButton showUserPfp={false}>
       <div className="mt-10 p-4">
-        <UserPfp className="mx-auto mb-5" size={96} />
+        <UserPfp
+          className="mx-auto mb-5"
+          size={96}
+          photoUrl={isSelf ? photoUrl : undefined}
+        />
 
         {isLoading && (
           <p className="text-center text-muted">Loading profile…</p>
@@ -49,9 +94,35 @@ const ProfilePage = () => {
 
         {user && (
           <>
-            <h2 className="text-center text-2xl font-bold mb-5">
-              {user.username}
-            </h2>
+            <div className="flex items-baseline gap-2 justify-center">
+              <span className="text-center text-2xl font-bold mb-5">
+                {user.username}{" "}
+                <span className="text-muted">#{user.id}</span>{" "}
+              </span>
+              {!isSelf &&
+                (areFriends ? (
+                  <FaUserCheck className="inline" />
+                ) : (
+                  <IconButton
+                    size="sm"
+                    icon={<FaUserPlus />}
+                    onClick={() =>
+                      offerFriendship({
+                        addresseeUserId: user.id,
+                        requesterUserId: authUser!.userId,
+                      })
+                        .unwrap()
+                        .then((res) => {
+                          toast.success(res.message);
+                        })
+                        .catch((e) => {
+                          toast.error(formatApiError(e));
+                        })
+                    }
+                    disabled={isOfferFriendshipLoading}
+                  />
+                ))}
+            </div>
 
             <List>
               <ProfileProperty title="Level" value={user.level} />

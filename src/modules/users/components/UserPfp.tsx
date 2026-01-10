@@ -1,20 +1,19 @@
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 import clsx from "clsx";
 import React from "react";
 
 type UserPfpProps = {
   size?: number;
+  photoUrl?: string;
+  label?: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>;
 
 const UserPfp: React.FC<UserPfpProps> = ({
+  photoUrl,
+  label,
   size = 40,
   className,
   ...props
 }) => {
-  const { tgWebAppData: data } = useLaunchParams();
-  const photoUrl = data?.user?.photo_url;
-  // const photoUrl = "https://dota2.ru/img/items/aether_lens.jpg";
-
   if (!photoUrl) {
     return (
       <div
@@ -25,7 +24,7 @@ const UserPfp: React.FC<UserPfpProps> = ({
         style={{ width: size, height: size }}
         {...props}
       >
-        {data?.user?.first_name?.[0] || "?"}?
+        {label}
       </div>
     );
   }
@@ -33,7 +32,7 @@ const UserPfp: React.FC<UserPfpProps> = ({
   return (
     <img
       src={photoUrl}
-      alt={data?.user?.first_name || "User"}
+      alt={label}
       // alt="User"
       className={clsx("rounded-full object-cover", className)}
       style={{ width: size, height: size }}
