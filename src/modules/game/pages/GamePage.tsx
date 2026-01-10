@@ -344,7 +344,9 @@ const GamePage = () => {
               <PlayingCard
                 key={i}
                 card={card}
-                selected={!disableCards && i === chosenCardIdx}
+                selected={
+                  !disableCards && !highlightCards && i === chosenCardIdx
+                }
                 onClick={() => chooseCard(i)}
                 className={clsx(
                   highlightCards && !folded && "highlight-card",
