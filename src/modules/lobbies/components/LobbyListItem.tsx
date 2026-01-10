@@ -13,51 +13,46 @@ import Modal from "src/ui/components/Modal";
 import { useJoinLobbyMutation } from "../api/lobbies";
 import { CachedLobby, Lobby, LobbyState } from "../api/types";
 
-const lobbyStateConfig: Record<
-  LobbyState,
-  { label: string; colorClass: string }
-> = {
-  LS_WAITING_FOR_PLAYERS: {
-    label: "Waiting",
-    colorClass: "bg-[var(--color-status-waiting)] text-white",
-  },
-  LS_COUNTDOWN_BEFORE_START: {
-    label: "Starting Soon",
-    colorClass: "bg-yellow-400 text-black",
-  },
-  LS_CHOOSING_CARD: {
-    label: "Choosing Card",
-    colorClass: "bg-blue-500 text-white",
-  },
-  LS_TRANSFERING_CARD: {
-    label: "Transferring",
-    colorClass: "bg-purple-500 text-white",
-  },
-  LS_FIRST_FOLD_PROCESSING: {
-    label: "Processing Fold",
-    colorClass: "bg-orange-500 text-white",
-  },
-  LS_WAITING_FOR_OTHERS_TO_FOLD: {
-    label: "Waiting to Fold",
-    colorClass: "bg-cyan-500 text-black",
-  },
-  LS_OTHERS_FOLD_PROCESSING: {
-    label: "Folding...",
-    colorClass: "bg-indigo-500 text-white",
-  },
-  LS_SHOWING_RESULT: {
-    label: "Showing Result",
-    colorClass: "bg-green-500 text-white",
-  },
-};
-
 const getLobbyStateDisplay = (state: LobbyState) => {
-  return (
-    lobbyStateConfig[state] || {
-      label: "Unknown",
-      colorClass: "bg-gray-500 text-white",
-    }
-  );
+  let stateCategory: string;
+  switch (state) {
+    case "LS_WAITING_FOR_PLAYERS":
+      stateCategory = "Waiting";
+      break;
+    case "LS_GAME_IN_PROGRESS":
+    case "LS_FIRST_FOLD_PROCESSED":
+    case "LS_WAITING_FOR_OTHER_FOLDS":
+    case "LS_SHOWING_RESULTS":
+      stateCategory = "Playing";
+      break;
+    case "LS_GAME_ENDED":
+      stateCategory = "Finished";
+      break;
+    default:
+      stateCategory = "Unknown";
+  }
+
+  const categoryConfig: Record<string, { label: string; colorClass: string }> =
+    {
+      Waiting: {
+        label: "Waiting",
+        colorClass: "bg-[var(--color-status-waiting)] text-white",
+      },
+      Playing: {
+        label: "Playing",
+        colorClass: "bg-blue-500 text-white",
+      },
+      Finished: {
+        label: "Finished",
+        colorClass: "bg-green-500 text-white",
+      },
+      Unknown: {
+        label: "Unknown",
+        colorClass: "bg-gray-500 text-white",
+      },
+    };
+
+  return categoryConfig[stateCategory] || categoryConfig["Unknown"];
 };
 
 type LobbyListItemProps = {

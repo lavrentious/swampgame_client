@@ -2,13 +2,11 @@ import { Card } from "src/modules/game/components/cards/types";
 
 export type LobbyState =
   | "LS_WAITING_FOR_PLAYERS"
-  | "LS_COUNTDOWN_BEFORE_START"
-  | "LS_CHOOSING_CARD"
-  | "LS_TRANSFERING_CARD"
-  | "LS_FIRST_FOLD_PROCESSING"
-  | "LS_WAITING_FOR_OTHERS_TO_FOLD"
-  | "LS_OTHERS_FOLD_PROCESSING"
-  | "LS_SHOWING_RESULT";
+  | "LS_GAME_IN_PROGRESS"
+  | "LS_FIRST_FOLD_PROCESSED"
+  | "LS_WAITING_FOR_OTHER_FOLDS"
+  | "LS_SHOWING_RESULTS"
+  | "LS_GAME_ENDED";
 
 export type PlainCard = {
   value: string; // e.g. "ACE of SPADES"
