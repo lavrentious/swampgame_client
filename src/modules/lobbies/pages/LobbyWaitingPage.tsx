@@ -15,6 +15,7 @@ import {
 } from "../api/lobbies";
 import PlayersGrid from "../components/LobbyPlayersGrid";
 import LobbyStatusInfo from "../components/LobbyStatusInfo";
+import { useGlobalLobbyStomp } from "../hooks/useGlobalLobbyStomp";
 
 const LobbyWaitingPage = () => {
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const LobbyWaitingPage = () => {
   }, [cachedLobby, lobbyId, navigate]);
 
   // sockets
-  const connected = true;
+  const { connected } = useGlobalLobbyStomp();
 
   // render
   if (
