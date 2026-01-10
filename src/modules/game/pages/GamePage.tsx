@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import toast from "react-hot-toast";
 import { Navigate, useParams } from "react-router";
 import Header from "src/modules/common/components/Header";
 import {
@@ -10,7 +9,7 @@ import { useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
 import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import PageLayout from "src/ui/components/PageLayout";
-import { useSwapCardsMutation } from "../api/game";
+import { ProgressBar } from "src/ui/components/ProgressBar";
 import { WsEventType, WsMessage } from "../api/types";
 import PlayingCard from "../components/cards/PlayingCard";
 import { Card } from "../components/cards/types";
@@ -52,11 +51,17 @@ const GamePage = () => {
   const {
     data: cachedLobby,
     isLoading: isLoadingCachedLobby,
-    refetch: refetchCachedLobby,
+    // refetch: refetchCachedLobby,
   } = useGetCachedLobbyQuery(lobbyId, {
     skip: !isAuth || Number.isNaN(lobbyId),
-    pollingInterval: !user || Number.isNaN(lobbyId) ? 0 : 7000, // safety sync
+    // pollingInterval: !user || Number.isNaN(lobbyId) ? 0 : 7000, // safety sync
   });
+
+  /* -------------------- game state ---------------------- */
+
+  const [lastSwapTimestamp, setLastSwapTimestamp] = useState<number>(
+    Date.now(),
+  );
 
   /* -------------------- derived state -------------------- */
 
@@ -68,11 +73,29 @@ const GamePage = () => {
     return currentPlayer?.foldOrderNumber != null;
   }, [cachedLobby, user]);
 
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!lobby) return;
+
+    const interval = setInterval(() => {
+      const elapsed = (Date.now() - lastSwapTimestamp) / 1000;
+      const pct = Math.min((elapsed / lobby.moveTimeout) * 100, 100);
+      setProgress(100 - pct);
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [lastSwapTimestamp, lobby]);
+
   /* -------------------- socket handler (stable) -------------------- */
 
   const onSocketMsg = useCallback((msg: WsMessage) => {
     switch (msg.eventType) {
       case WsEventType.PLAYER_RECIEVED_CARD: {
+        console.log("Player received card", msg.payload);
+
+        setRoundNumber((rn) => rn + 1);
+        setLastSwapTimestamp(Date.now());
         setUserCards((prev) => {
           if (!prev) return prev;
           const newCard = parsePlainCard(msg.payload.card.value);
@@ -127,22 +150,6 @@ const GamePage = () => {
     chooseCardRef.current = chooseCard;
   }, [chooseCard]);
 
-  const [swapCardsRequest] = useSwapCardsMutation();
-
-  const swapCards = useCallback(() => {
-    swapCardsRequest({ lobbyId })
-      .unwrap()
-      .then(() => {
-        toast.success("Swapped cards");
-        refetchCachedLobby();
-
-        if (chosenCardIdxRef.current !== null) {
-          chooseCardRef.current(chosenCardIdxRef.current);
-        }
-      })
-      .catch(() => toast.error("Failed to swap cards"));
-  }, [swapCardsRequest, lobbyId, refetchCachedLobby]);
-
   const foldCards = useCallback(() => {
     send("/app/lobby/fold", {});
   }, [send]);
@@ -192,8 +199,17 @@ const GamePage = () => {
       <PageLayout.Body className="flex flex-col items-center justify-center gap-5">
         <GameTable
           players={cachedLobby.players.filter((p) => p.userId !== user?.userId)}
-          iconRotation={roundNumber * 30}
+          iconRotation={roundNumber * (360 / cachedLobby.players.length)}
         />
+
+        <div className="px-4 w-full">
+          <ProgressBar
+            className="my-2"
+            progress={progress}
+            animated
+            label={`${Math.ceil((((100 - progress) / 100) * lobby.moveTimeout) / 1000)}s left`}
+          />
+        </div>
 
         <div className="flex gap-3">
           {folded ? (
@@ -214,21 +230,13 @@ const GamePage = () => {
       </PageLayout.Body>
 
       <PageLayout.Footer>
-        <div className="p-4 flex gap-3">
+        <div className="p-4">
           <Button
             className="w-full py-4"
             onClick={() => foldCards()}
             disabled={folded}
           >
             GOVNO
-          </Button>
-          <Button
-            className="w-full py-4"
-            variant="secondary"
-            onClick={swapCards}
-            disabled={folded}
-          >
-            Swap
           </Button>
         </div>
       </PageLayout.Footer>

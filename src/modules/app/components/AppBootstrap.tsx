@@ -24,6 +24,12 @@ export function AppBootstrap() {
   useGlobalLobbyStomp();
 
   useEffect(() => {
+    console.log("AppBootstrap effect", {
+      isSuccess,
+      data,
+      cachedLobby,
+      location: location.pathname,
+    });
     if (!isSuccess || !data || data.status !== "in_lobby" || !cachedLobby)
       return;
 
@@ -33,6 +39,7 @@ export function AppBootstrap() {
         : `/game/${data.lobbyId}`;
 
     if (location.pathname !== target) {
+      console.log("redirecting to", target);
       navigate(target, { replace: true });
     }
   }, [cachedLobby, data, isSuccess, navigate, location.pathname]);

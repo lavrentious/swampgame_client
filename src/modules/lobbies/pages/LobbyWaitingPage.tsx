@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
+import { setUserState } from "src/modules/app/store/appSlice";
 import Header from "src/modules/common/components/Header";
-import { useAppSelector } from "src/store";
+import { useAppDispatch, useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
 import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import PageLayout from "src/ui/components/PageLayout";
@@ -17,6 +18,7 @@ import LobbyStatusInfo from "../components/LobbyStatusInfo";
 
 const LobbyWaitingPage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [leaveLobby] = useLeaveLobbyMutation();
   const [startLobby] = useStartLobbyMutation();
 
@@ -82,13 +84,7 @@ const LobbyWaitingPage = () => {
     return (
       <PageLayout>
         <PageLayout.Body>
-          <h1 className="text-2xl font-bold text-center mt-20">Error</h1>
-          <Link
-            to="/"
-            className="text-blue-500 hover:text-blue-600 hover:underline"
-          >
-            Go back
-          </Link>
+          <Navigate to="/" replace />
         </PageLayout.Body>
       </PageLayout>
     );
@@ -102,14 +98,17 @@ const LobbyWaitingPage = () => {
           showBackButton
           onBackClick={() => {
             console.log("leaving lobby...");
+            dispatch(setUserState({ status: "idle" }));
             leaveLobby({ lobbyId, userId: user.userId })
               .unwrap()
               .then(() => {
                 toast.success("left lobby");
-                navigate("/");
               })
               .catch((e) => {
-                console.error("error while leaving", e);
+                toast.error("error while leaving", e);
+              })
+              .finally(() => {
+                navigate("/");
               });
           }}
           backPath="/lobbies"

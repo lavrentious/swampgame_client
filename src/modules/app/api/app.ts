@@ -14,7 +14,7 @@ export const appApi = createApi({
           const { data } = await queryFulfilled;
           dispatch(setUserState(data));
         } catch {
-          // ignore
+          dispatch(setUserState({ status: "idle" }));
         }
       },
     }),

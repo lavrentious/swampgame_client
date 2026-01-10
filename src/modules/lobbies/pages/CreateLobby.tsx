@@ -43,7 +43,7 @@ const CreateLobby = () => {
         .unwrap()
         .then((res) => {
           dispatch(setUserState({ status: "in_lobby", lobbyId: res.lobbyId }));
-          toast.success("lobby created: " + JSON.stringify(res));
+          toast.success(`lobby #${res.lobbyId} created`);
           navigate(`/lobby/${res.lobbyId}`);
         });
     },
