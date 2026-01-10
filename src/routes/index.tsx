@@ -18,7 +18,7 @@ const routes: Route[] = [
   { element: <MainPage />, path: "/" },
   { element: <ShopPage />, path: "/shop" },
   { element: <GamePage />, path: "/game/:id" },
-  { element: <LeaderboardPage />, path: "/leaderboard" },
+  { element: <LeaderboardPage />, path: "/leaderboard/:id" },
   { element: <ProfilePage />, path: "/profile" },
   { element: <CreateLobby />, path: "/create-lobby" },
   { element: <LobbyWaitingPage />, path: "/lobby/:id" },

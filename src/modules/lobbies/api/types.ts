@@ -46,6 +46,7 @@ export type CachedLobby = {
   initGameStartTimestamp: number;
   lastMoveTimestamp: number;
   lastSwapTimestamp: number;
+  leaderboard: string[];
 };
 
 export type LobbyWithCache = { lobby: Lobby; cached: CachedLobby };
