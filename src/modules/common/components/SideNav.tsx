@@ -1,7 +1,7 @@
 // SideNav.tsx
 import clsx from "clsx";
 import { useCallback, useMemo } from "react";
-import { FaHome, FaPeopleArrows, FaShoppingCart, FaUser } from "react-icons/fa";
+import { FaHome, FaPeopleArrows, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import List from "src/ui/components/List";
 
@@ -25,7 +25,10 @@ const SideNavItem: React.FC<{
 
   return (
     <div
-      className={clsx(active && "bg-primary/50", "m-2 p-3 rounded-xl")}
+      className={clsx(
+        active && "bg-primary/50",
+        "m-2 p-3 rounded-xl clickable",
+      )}
       onClick={handleNavigate}
     >
       <span className="flex items-center gap-2">
@@ -45,11 +48,11 @@ export const SideNav: React.FC<{ onNavigate?: () => void }> = ({
       icon: <FaHome />,
       url: "/",
     },
-    {
-      title: "Shop",
-      icon: <FaShoppingCart />,
-      url: "/shop",
-    },
+    // {
+    //   title: "Shop",
+    //   icon: <FaShoppingCart />,
+    //   url: "/shop",
+    // },
     {
       title: "Profile",
       icon: <FaUser />,

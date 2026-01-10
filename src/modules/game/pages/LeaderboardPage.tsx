@@ -61,11 +61,11 @@ const LeaderboardPage = () => {
       <PageLayout.Body className="flex flex-col items-center gap-4 p-4">
         {sorted ? (
           sorted.map((entry) => (
-            <div className="w-full max-w-md bg-white/5 rounded-lg overflow-hidden">
-              <div
-                key={entry.userId}
-                className="flex justify-between items-center px-4 py-3 border-b border-white/10 last:border-b-0"
-              >
+            <div
+              className="w-full max-w-md bg-white/5 rounded-lg overflow-hidden"
+              key={entry.userId}
+            >
+              <div className="flex justify-between items-center px-4 py-3 border-b border-white/10 last:border-b-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg">{entry.place}.</span>
                   <span className="text-white/90">{entry.displayName}</span>

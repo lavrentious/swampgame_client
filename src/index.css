@@ -128,3 +128,6 @@ hr {
 .clickable {
   cursor: pointer;
 }
+.clickable:hover {
+  background-color: var(--color-surface-alt);
+}

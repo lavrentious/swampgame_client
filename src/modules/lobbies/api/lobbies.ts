@@ -10,6 +10,8 @@ import {
   LobbyWithCache,
 } from "./types";
 
+const deadLobbiesIds = new Set<number>();
+
 export const lobbiesApi = createApi({
   reducerPath: "lobbiesApi",
   baseQuery: getBaseQuery({ baseUrl: "/lobbies" }),
@@ -75,11 +77,14 @@ export const lobbiesApi = createApi({
           // fetch cached lobbies in parallel
           const cachedResults = await Promise.all(
             lobbies.map(async (lobby) => {
+              if (deadLobbiesIds.has(lobby.id)) return null;
               try {
                 const cachedRes = await baseQuery(`/cache/${lobby.id}`);
-                return cachedRes.error
-                  ? null // treat as offline / deleted
-                  : { lobby, cached: cachedRes.data as CachedLobby };
+                if (cachedRes.error) {
+                  deadLobbiesIds.add(lobby.id);
+                  return null;
+                }
+                return { lobby, cached: cachedRes.data as CachedLobby };
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
               } catch (err) {
                 return null;

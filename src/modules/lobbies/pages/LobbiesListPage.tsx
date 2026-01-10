@@ -27,7 +27,7 @@ const LobbiesListPage = () => {
     refetch,
   } = useGetLobbiesWithCacheQuery(void 0, {
     skip: !isAuth,
-    pollingInterval: 5000,
+    pollingInterval: 30000,
   });
 
   const renderCentered = (content: React.ReactNode) => (
