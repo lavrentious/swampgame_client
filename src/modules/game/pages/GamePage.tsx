@@ -29,15 +29,25 @@ const GamePage = () => {
   const isAuth = useAppSelector((s) => s.auth.isAuthenticated);
   const jwt = useAppSelector((s) => s.auth.accessToken!);
 
+  /* -------------------- Lobby queries -------------------- */
   const { data: lobby, isLoading: isLoadingLobby } = useGetLobbyQuery(lobbyId, {
     skip: !isAuth || Number.isNaN(lobbyId),
   });
 
+  const {
+    data: cachedLobby,
+    isLoading: isLoadingCachedLobby,
+    refetch: refetchCachedLobby,
+  } = useGetCachedLobbyQuery(lobbyId, {
+    skip: !isAuth || Number.isNaN(lobbyId),
+  });
+
+  /* -------------------- Game state -------------------- */
   const [userCards, setUserCards] = useState<Card[] | null>(null);
   const [chosenCardIdx, setChosenCardIdx] = useState<number | null>(null);
   const [roundNumber, setRoundNumber] = useState(0);
-
-  /* -------------------- refs used by socket -------------------- */
+  const [lastSwapTimestamp, setLastSwapTimestamp] = useState(Date.now());
+  const [progress, setProgress] = useState(0);
 
   const chooseCardRef = useRef<(idx: number) => void>(() => {});
   const chosenCardIdxRef = useRef<number | null>(null);
@@ -46,25 +56,7 @@ const GamePage = () => {
     chosenCardIdxRef.current = chosenCardIdx;
   }, [chosenCardIdx]);
 
-  /* -------------------- cached lobby (with polling) -------------------- */
-
-  const {
-    data: cachedLobby,
-    isLoading: isLoadingCachedLobby,
-    // refetch: refetchCachedLobby,
-  } = useGetCachedLobbyQuery(lobbyId, {
-    skip: !isAuth || Number.isNaN(lobbyId),
-    // pollingInterval: !user || Number.isNaN(lobbyId) ? 0 : 7000, // safety sync
-  });
-
-  /* -------------------- game state ---------------------- */
-
-  const [lastSwapTimestamp, setLastSwapTimestamp] = useState<number>(
-    Date.now(),
-  );
-
-  /* -------------------- derived state -------------------- */
-
+  /* -------------------- Derived state -------------------- */
   const folded = useMemo(() => {
     if (!cachedLobby || !user) return false;
     const currentPlayer = cachedLobby.players.find(
@@ -73,8 +65,7 @@ const GamePage = () => {
     return currentPlayer?.foldOrderNumber != null;
   }, [cachedLobby, user]);
 
-  const [progress, setProgress] = useState(0);
-
+  /* -------------------- Countdown Progress -------------------- */
   useEffect(() => {
     if (!lobby) return;
 
@@ -87,17 +78,15 @@ const GamePage = () => {
     return () => clearInterval(interval);
   }, [lastSwapTimestamp, lobby]);
 
-  /* -------------------- socket handler (stable) -------------------- */
-
+  /* -------------------- WebSocket -------------------- */
   const onSocketMsg = useCallback((msg: WsMessage) => {
     switch (msg.eventType) {
       case WsEventType.PLAYER_RECIEVED_CARD: {
-        console.log("Player received card", msg.payload);
-
         setRoundNumber((rn) => rn + 1);
         setLastSwapTimestamp(Date.now());
+
         setUserCards((prev) => {
-          if (!prev) return prev;
+          if (!prev) return null;
           const newCard = parsePlainCard(msg.payload.card.value);
           return [
             ...prev.slice(0, msg.payload.idx),
@@ -107,7 +96,6 @@ const GamePage = () => {
         });
 
         const idx = chosenCardIdxRef.current ?? msg.payload.idx;
-
         chooseCardRef.current(idx);
         break;
       }
@@ -125,8 +113,6 @@ const GamePage = () => {
     }
   }, []);
 
-  /* -------------------- stomp -------------------- */
-
   const { connected, send } = useStomp({
     url: "/user/queue/private",
     jwt,
@@ -134,12 +120,10 @@ const GamePage = () => {
     skip: !isAuth || Number.isNaN(lobbyId),
   });
 
-  /* -------------------- actions -------------------- */
-
+  /* -------------------- Actions -------------------- */
   const chooseCard = useCallback(
     (idx: number) => {
       if (!connected || !userCards) return;
-
       setChosenCardIdx(idx);
       send("/app/lobby/selectCard", { chosenCardIndex: idx });
     },
@@ -154,35 +138,44 @@ const GamePage = () => {
     send("/app/lobby/fold", {});
   }, [send]);
 
-  /* -------------------- sync hand from cached lobby (poll-safe) -------------------- */
+  /* -------------------- Resync user hand -------------------- */
+  const syncUserHand = useCallback(async () => {
+    if (!user || !refetchCachedLobby) return;
 
-  useEffect(() => {
-    if (!cachedLobby || !user) return;
+    const res = await refetchCachedLobby();
+    const freshLobby = res.data;
 
-    const currentPlayer = cachedLobby.players.find(
+    console.log("syncing user hand...");
+
+    if (!freshLobby) return;
+
+    const currentPlayer = freshLobby.players.find(
       (p) => p.userId === user.userId,
     );
-
     if (!currentPlayer?.hand) return;
-
-    console.log("Syncing hand from cached lobby:", currentPlayer.hand);
 
     const nextCards = currentPlayer.hand
       .filter(Boolean)
       .map((c) => parsePlainCard(c!.value));
 
-    setUserCards((prev) => {
-      if (!prev) return nextCards;
-      return cardsEqual(prev, nextCards) ? prev : nextCards;
-    });
+    setUserCards((prev) =>
+      prev ? (cardsEqual(prev, nextCards) ? prev : nextCards) : nextCards,
+    );
+  }, [user, refetchCachedLobby]);
 
-    setRoundNumber((rn) => rn + 1);
-  }, [cachedLobby, user]);
+  useEffect(() => {
+    syncUserHand();
+  }, [syncUserHand]);
 
-  /* -------------------- render -------------------- */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncUserHand();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [syncUserHand]);
 
+  /* -------------------- Render -------------------- */
   if (isLoadingLobby || isLoadingCachedLobby) return <div>Loading...</div>;
-
   if (!lobby || !cachedLobby) return <Navigate to="/" />;
 
   return (
@@ -207,7 +200,9 @@ const GamePage = () => {
             className="my-2"
             progress={progress}
             animated
-            label={`${Math.ceil((((100 - progress) / 100) * lobby.moveTimeout) / 1000)}s left`}
+            label={`${Math.ceil(
+              (((100 - progress) / 100) * lobby.moveTimeout) / 1000,
+            )}s left`}
           />
         </div>
 
@@ -231,11 +226,7 @@ const GamePage = () => {
 
       <PageLayout.Footer>
         <div className="p-4">
-          <Button
-            className="w-full py-4"
-            onClick={() => foldCards()}
-            disabled={folded}
-          >
+          <Button className="w-full py-4" onClick={foldCards} disabled={folded}>
             GOVNO
           </Button>
         </div>
