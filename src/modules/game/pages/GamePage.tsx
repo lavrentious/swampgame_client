@@ -60,6 +60,9 @@ const GamePage = () => {
   const [firstFoldedUserId, setFirstFoldedUserId] = useState<number | null>(
     null,
   );
+  const [foldError, setFoldError] = useState(false);
+  const [foldCooldown, setFoldCooldown] = useState(false);
+
   const foldOrderNumber = useMemo(() => {
     if (!cachedLobby) return null;
     return cachedLobby.players.find((p) => p.userId === user?.userId)
@@ -84,7 +87,7 @@ const GamePage = () => {
     if (highlightCards) return true;
     if (firstFoldedUserId != null && !folded) return true;
   }, [firstFoldedUserId, folded, highlightCards]);
-  const dimCards = useMemo(() => {
+  const disableCards = useMemo(() => {
     if (highlightCards) return false;
     if (firstFoldedUserId != null && firstFoldedUserId != user?.userId)
       return true;
@@ -159,6 +162,13 @@ const GamePage = () => {
         case WsEventType.ERROR_PLAYER_ILLEGAL_FOLD_ATTEMPT:
           console.log("Illegal fold attempt");
           toast(msg.payload, { icon: "🚫" });
+
+          setFoldError(true);
+          setFoldCooldown(true);
+
+          setTimeout(() => setFoldError(false), 500);
+          setTimeout(() => setFoldCooldown(false), 1500);
+
           break;
 
         case WsEventType.PLAYER_FOLDED_CARDS:
@@ -212,11 +222,11 @@ const GamePage = () => {
   /* -------------------- Actions -------------------- */
   const chooseCard = useCallback(
     (idx: number) => {
-      if (!connected || !userCards) return;
+      if (!connected || !userCards || disableCards) return;
       setChosenCardIdx(idx);
       send("/app/lobby/selectCard", { chosenCardIndex: idx });
     },
-    [connected, userCards, send],
+    [connected, userCards, disableCards, send],
   );
 
   useEffect(() => {
@@ -336,11 +346,12 @@ const GamePage = () => {
               <PlayingCard
                 key={i}
                 card={card}
-                selected={i === chosenCardIdx}
+                selected={!disableCards && i === chosenCardIdx}
                 onClick={() => chooseCard(i)}
                 className={clsx(
                   highlightCards && !folded && "highlight-card",
-                  dimCards && "brightness-50",
+                  disableCards && "brightness-50",
+                  foldError && "shake",
                 )}
               />
             ))
@@ -361,9 +372,10 @@ const GamePage = () => {
                   "ring-2 ring-amber-400",
                   "bg-amber-500 text-black hover:bg-amber-400",
                 ],
+              foldError && "shake",
             )}
             onClick={foldCards}
-            disabled={folded}
+            disabled={folded || foldCooldown}
           >
             BOLOTO
           </Button>
