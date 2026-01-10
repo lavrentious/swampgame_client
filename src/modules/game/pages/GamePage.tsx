@@ -18,6 +18,10 @@ import GameTable from "../components/GameTable";
 import { useStomp } from "../hooks/useStomp";
 import { parsePlainCard } from "../utils/game";
 
+const cardsEqual = (a: Card[], b: Card[]) =>
+  a.length === b.length &&
+  a.every((c, i) => c.value === b[i].value && c.suit === b[i].suit);
+
 const GamePage = () => {
   const { id } = useParams<{ id?: string }>();
   const lobbyId = id ? Number(id) : NaN;
@@ -27,14 +31,6 @@ const GamePage = () => {
   const jwt = useAppSelector((s) => s.auth.accessToken!);
 
   const { data: lobby, isLoading: isLoadingLobby } = useGetLobbyQuery(lobbyId, {
-    skip: !isAuth || Number.isNaN(lobbyId),
-  });
-
-  const {
-    data: cachedLobby,
-    isLoading: isLoadingCachedLobby,
-    refetch: refetchCachedLobby,
-  } = useGetCachedLobbyQuery(lobbyId, {
     skip: !isAuth || Number.isNaN(lobbyId),
   });
 
@@ -51,6 +47,17 @@ const GamePage = () => {
     chosenCardIdxRef.current = chosenCardIdx;
   }, [chosenCardIdx]);
 
+  /* -------------------- cached lobby (with polling) -------------------- */
+
+  const {
+    data: cachedLobby,
+    isLoading: isLoadingCachedLobby,
+    refetch: refetchCachedLobby,
+  } = useGetCachedLobbyQuery(lobbyId, {
+    skip: !isAuth || Number.isNaN(lobbyId),
+    pollingInterval: !user || Number.isNaN(lobbyId) ? 0 : 7000, // safety sync
+  });
+
   /* -------------------- derived state -------------------- */
 
   const folded = useMemo(() => {
@@ -61,7 +68,7 @@ const GamePage = () => {
     return currentPlayer?.foldOrderNumber != null;
   }, [cachedLobby, user]);
 
-  /* -------------------- socket handler (NO deps) -------------------- */
+  /* -------------------- socket handler (stable) -------------------- */
 
   const onSocketMsg = useCallback((msg: WsMessage) => {
     switch (msg.eventType) {
@@ -137,16 +144,13 @@ const GamePage = () => {
   }, [swapCardsRequest, lobbyId, refetchCachedLobby]);
 
   const foldCards = useCallback(() => {
-    console.log("folding cards...");
     send("/app/lobby/fold", {});
   }, [send]);
 
-  /* -------------------- effects -------------------- */
+  /* -------------------- sync hand from cached lobby (poll-safe) -------------------- */
 
   useEffect(() => {
     if (!cachedLobby || !user) return;
-
-    setRoundNumber((rn) => rn + 1);
 
     const currentPlayer = cachedLobby.players.find(
       (p) => p.userId === user.userId,
@@ -154,14 +158,24 @@ const GamePage = () => {
 
     if (!currentPlayer?.hand) return;
 
-    setUserCards(
-      currentPlayer.hand.filter(Boolean).map((c) => parsePlainCard(c!.value)),
-    );
+    console.log("Syncing hand from cached lobby:", currentPlayer.hand);
+
+    const nextCards = currentPlayer.hand
+      .filter(Boolean)
+      .map((c) => parsePlainCard(c!.value));
+
+    setUserCards((prev) => {
+      if (!prev) return nextCards;
+      return cardsEqual(prev, nextCards) ? prev : nextCards;
+    });
+
+    setRoundNumber((rn) => rn + 1);
   }, [cachedLobby, user]);
 
   /* -------------------- render -------------------- */
 
   if (isLoadingLobby || isLoadingCachedLobby) return <div>Loading...</div>;
+
   if (!lobby || !cachedLobby) return <Navigate to="/" />;
 
   return (
@@ -181,17 +195,13 @@ const GamePage = () => {
         />
       </PageLayout.Header>
 
-      <PageLayout.Body className="flex flex-col items-center justify-center gap-5 overflow-x-hidden">
+      <PageLayout.Body className="flex flex-col items-center justify-center gap-5">
         <GameTable
           players={cachedLobby.players.filter((p) => p.userId !== user?.userId)}
           iconRotation={roundNumber * 30}
         />
 
-        <div className="text-white/80">
-          time left: <strong className="text-white">12 sec</strong>
-        </div>
-
-        <div className="flex gap-3 max-w-full">
+        <div className="flex gap-3">
           {folded ? (
             <h2>You have finished, congrats</h2>
           ) : userCards ? (
