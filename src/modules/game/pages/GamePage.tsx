@@ -176,8 +176,6 @@ const GamePage = () => {
           if (msg.userId === user?.userId) {
             toast("You have folded your cards!", { icon: "🃏" });
             setFolded(true);
-          } else {
-            toast(msg.payload, { icon: "❗️" });
           }
 
           dispatch(
