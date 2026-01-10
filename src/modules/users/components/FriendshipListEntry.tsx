@@ -1,4 +1,6 @@
 import clsx from "clsx";
+import { MouseEventHandler } from "react";
+import { useNavigate } from "react-router";
 import { Badge } from "src/ui/components/Badge";
 import LoadingButton from "src/ui/components/LoadingButton";
 import { Friendship } from "../api/types";
@@ -19,6 +21,8 @@ const FriendshipListEntry = ({
   currentUserId,
   className,
 }: Props) => {
+  const navigate = useNavigate();
+
   const [acceptFriendship, { isLoading: isAccepting }] =
     useAcceptFriendshipMutation();
   const [deleteFriendship, { isLoading: isDeleting }] =
@@ -33,14 +37,16 @@ const FriendshipListEntry = ({
 
   const { data: user } = useFindUserByIdQuery(otherUserId);
 
-  const handleAccept = () => {
+  const handleAccept: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
     acceptFriendship({
       requesterUserId: friendship.requesterUserId,
       addresseeUserId: friendship.addresseeUserId,
     });
   };
 
-  const handleDelete = () => {
+  const handleDelete: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
     deleteFriendship({
       requesterUserId: friendship.requesterUserId,
       addresseeUserId: friendship.addresseeUserId,
@@ -50,9 +56,10 @@ const FriendshipListEntry = ({
   return (
     <div
       className={clsx(
-        "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow",
+        "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow clickable",
         className,
       )}
+      onClick={() => user && navigate(`/profile/${user.id}`)}
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-2">

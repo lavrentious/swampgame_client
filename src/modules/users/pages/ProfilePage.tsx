@@ -49,7 +49,9 @@ const ProfilePage = () => {
     data: user,
     isLoading,
     isError,
-  } = useFindUserByIdQuery(!userId || !isAuth ? skipToken : userId);
+  } = useFindUserByIdQuery(!userId || !isAuth ? skipToken : userId, {
+    pollingInterval: 10000,
+  });
 
   const [offerFriendship, { isLoading: isOfferFriendshipLoading }] =
     useOfferFriendshipMutation();
@@ -66,6 +68,7 @@ const ProfilePage = () => {
     authUser && user && !isSelf
       ? { user1: authUser.userId, user2: user.id }
       : skipToken,
+    { pollingInterval: 10000 },
   );
 
   const pageTitle = useMemo<string>(() => {

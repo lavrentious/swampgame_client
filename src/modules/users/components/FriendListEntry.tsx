@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { MouseEventHandler } from "react";
 import { useNavigate } from "react-router";
 import LoadingButton from "src/ui/components/LoadingButton";
 import { Friendship } from "../api/types";
@@ -25,7 +26,8 @@ const FriendListEntry = ({ friendship, currentUserId, className }: Props) => {
 
   const { data: user } = useFindUserByIdQuery(otherUserId);
 
-  const handleRemove = () => {
+  const handleRemove: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
     deleteFriendship({
       requesterUserId: friendship.requesterUserId,
       addresseeUserId: friendship.addresseeUserId,
@@ -35,7 +37,7 @@ const FriendListEntry = ({ friendship, currentUserId, className }: Props) => {
   return (
     <div
       className={clsx(
-        "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow",
+        "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow clickable",
         className,
       )}
       onClick={() => user && navigate(`/profile/${user.id}`)}
