@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PiArrowsClockwiseThin } from "react-icons/pi";
 import { Player } from "src/modules/lobbies/api/types";
 import { polarToCartesian } from "../utils/table";
@@ -17,8 +17,24 @@ const GameTable: React.FC<
 
   const gapAngle = 180;
 
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [tableSize, setTableSize] = useState(0);
+
+  useEffect(() => {
+    if (!tableRef.current) return;
+
+    const resize = () => {
+      setTableSize(tableRef.current!.offsetWidth);
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
   return (
     <div
+      ref={tableRef}
       className={clsx(
         "relative mx-auto w-[80vw] max-w-md aspect-square",
         className,
@@ -46,6 +62,29 @@ const GameTable: React.FC<
 
         const scale = Math.max(0.7, Math.min(1.3, 9 / players.length));
 
+        const seatPx = {
+          x: (x / 125) * tableSize,
+          y: (y / 125) * tableSize,
+        };
+
+        const centerPx = {
+          x: (center / 125) * tableSize,
+          y: (center / 125) * tableSize,
+        };
+
+        const foldVector =
+          player.foldOrderNumber != null
+            ? {
+                x: centerPx.x - seatPx.x,
+                y: centerPx.y - seatPx.y,
+              }
+            : undefined;
+
+        const foldRotation =
+          player.foldOrderNumber != null && foldVector
+            ? Math.atan2(foldVector.y, foldVector.x) * (180 / Math.PI) + 90
+            : 0;
+
         return (
           <div
             key={player.userId}
@@ -56,7 +95,11 @@ const GameTable: React.FC<
               transform: `translate(-50%, -50%) scale(${scale})`,
             }}
           >
-            <PlayerSeat player={player} />
+            <PlayerSeat
+              player={player}
+              foldVector={foldVector}
+              foldRotation={foldRotation}
+            />
           </div>
         );
       })}
