@@ -23,6 +23,8 @@ export type LeaderboardEntry = {
 
 export type GameFinishedPayload = LeaderboardEntry[];
 
+export type StringPayload = string;
+
 export interface ErrorPayload {
   message: string;
 }
@@ -66,7 +68,7 @@ export interface WsLobbyUserResponse<T> extends WsLobbyResponse<T> {
 export type WsEventPayloadMap = {
   [WsEventType.PLAYER_CHOSE_CARD]: PlayerChoseCardPayload;
   [WsEventType.PLAYER_RECIEVED_CARD]: PlayerReceivedCardPayload;
-  [WsEventType.PLAYER_FOLDED_CARDS]: void;
+  [WsEventType.PLAYER_FOLDED_CARDS]: StringPayload;
 
   [WsEventType.PLAYER_JOINED_LOBBY]: { userId: number };
   [WsEventType.PLAYER_LEFT_LOBBY]: { userId: number };
@@ -74,14 +76,14 @@ export type WsEventPayloadMap = {
   [WsEventType.GAME_STARTED]: GameStartedPayload;
   [WsEventType.GAME_FINISHED]: GameFinishedPayload;
 
-  [WsEventType.ERROR_GAME_LOBBY_NOT_FOUND]: ErrorPayload;
-  [WsEventType.ERROR_GAME_CARDS_WERE_NOT_DEALED]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_NOT_FOUND_IN_LOBBY]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_ALREADY_FOLDED]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_ILLEGAL_FOLD_ATTEMPT]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_DOESNT_OWN_THIS_CARD]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_CHOSEN_CARD_INDEX_OUT_OF_BOUNDS]: ErrorPayload;
-  [WsEventType.ERROR_PLAYER_UNABLE_TO_CHOOSE_CARD]: ErrorPayload;
+  [WsEventType.ERROR_GAME_LOBBY_NOT_FOUND]: StringPayload;
+  [WsEventType.ERROR_GAME_CARDS_WERE_NOT_DEALED]: StringPayload;
+  [WsEventType.ERROR_PLAYER_NOT_FOUND_IN_LOBBY]: StringPayload;
+  [WsEventType.ERROR_PLAYER_ALREADY_FOLDED]: StringPayload;
+  [WsEventType.ERROR_PLAYER_ILLEGAL_FOLD_ATTEMPT]: StringPayload;
+  [WsEventType.ERROR_PLAYER_DOESNT_OWN_THIS_CARD]: StringPayload;
+  [WsEventType.ERROR_PLAYER_CHOSEN_CARD_INDEX_OUT_OF_BOUNDS]: StringPayload;
+  [WsEventType.ERROR_PLAYER_UNABLE_TO_CHOOSE_CARD]: StringPayload;
 };
 
 export type WsMessage = {

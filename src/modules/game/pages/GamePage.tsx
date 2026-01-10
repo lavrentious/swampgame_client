@@ -60,13 +60,7 @@ const GamePage = () => {
   }, [chosenCardIdx]);
 
   /* -------------------- Derived state -------------------- */
-  const folded = useMemo(() => {
-    if (!cachedLobby || !user) return false;
-    const currentPlayer = cachedLobby.players.find(
-      (p) => p.userId === user.userId,
-    );
-    return currentPlayer?.foldOrderNumber != null;
-  }, [cachedLobby, user]);
+  const [folded, setFolded] = useState<boolean>(false);
 
   const displayPlayers = useMemo(() => {
     if (!cachedLobby || !user) return [];
@@ -134,6 +128,17 @@ const GamePage = () => {
           navigate("/leaderboard", { state: msg.payload });
           break;
 
+        case WsEventType.ERROR_PLAYER_ILLEGAL_FOLD_ATTEMPT:
+          console.log("Illegal fold attempt");
+          toast(msg.payload, { icon: "🚫" });
+          break;
+
+        case WsEventType.PLAYER_FOLDED_CARDS:
+          console.log("Player folded cards", msg.payload);
+          toast(msg.payload, { icon: "🎉" });
+          setFolded(true);
+          break;
+
         default:
           break;
       }
@@ -167,40 +172,46 @@ const GamePage = () => {
   }, [send]);
 
   /* -------------------- Resync user hand -------------------- */
-  const syncUserHand = useCallback(async () => {
+  const syncGameState = useCallback(async () => {
     if (!user || !refetchCachedLobby) return;
 
     const res = await refetchCachedLobby();
     const freshLobby = res.data;
 
-    console.log("syncing user hand...");
-
     if (!freshLobby) return;
 
+    console.log("syncing game state...");
+
+    // sync folded state
     const currentPlayer = freshLobby.players.find(
       (p) => p.userId === user.userId,
     );
-    if (!currentPlayer?.hand) return;
 
+    if (currentPlayer?.foldOrderNumber != null) {
+      setFolded(true);
+      return;
+    }
+
+    // sync user hand
+    if (!currentPlayer?.hand) return;
     const nextCards = currentPlayer.hand
       .filter(Boolean)
       .map((c) => parsePlainCard(c!.value));
-
     setUserCards((prev) =>
       prev ? (cardsEqual(prev, nextCards) ? prev : nextCards) : nextCards,
     );
   }, [user, refetchCachedLobby]);
 
   useEffect(() => {
-    syncUserHand();
-  }, [syncUserHand]);
+    syncGameState();
+  }, [syncGameState]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      syncUserHand();
+      syncGameState();
     }, 5000);
     return () => clearInterval(interval);
-  }, [syncUserHand]);
+  }, [syncGameState]);
 
   /* -------------------- Render -------------------- */
   if (isLoadingLobby || isLoadingCachedLobby) return <div>Loading...</div>;

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -23,15 +23,14 @@ export function AppBootstrap() {
 
   useGlobalLobbyStomp();
 
+  const hasRedirectedRef = useRef(false);
+
   useEffect(() => {
-    console.log("AppBootstrap effect", {
-      isSuccess,
-      data,
-      cachedLobby,
-      location: location.pathname,
-    });
-    if (!isSuccess || !data || data.status !== "in_lobby" || !cachedLobby)
+    if (hasRedirectedRef.current) return;
+    if (!isSuccess || !data || !cachedLobby || data.status !== "in_lobby")
       return;
+
+    hasRedirectedRef.current = true;
 
     const target =
       cachedLobby.lobbyState === "LS_WAITING_FOR_PLAYERS"
@@ -39,10 +38,9 @@ export function AppBootstrap() {
         : `/game/${data.lobbyId}`;
 
     if (location.pathname !== target) {
-      console.log("redirecting to", target);
       navigate(target, { replace: true });
     }
-  }, [cachedLobby, data, isSuccess, navigate, location.pathname]);
+  }, [isSuccess, data, cachedLobby, navigate, location.pathname]);
 
   return null;
 }
