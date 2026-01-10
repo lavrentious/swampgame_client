@@ -45,7 +45,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div
       className={clsx(
-        "w-full bg-gray-700 rounded-full overflow-hidden",
+        "w-full bg-gray-700 rounded-full overflow-hidden relative",
         sizeClass,
         className,
       )}

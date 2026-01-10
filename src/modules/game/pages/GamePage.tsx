@@ -239,9 +239,7 @@ const GamePage = () => {
             className="my-2"
             progress={progress}
             animated
-            label={`${Math.ceil(
-              (((100 - progress) / 100) * lobby.moveTimeout) / 1000,
-            )}s left`}
+            label={`${((progress / 100) * lobby.moveTimeout).toFixed(1)}s left`}
           />
         </div>
 
