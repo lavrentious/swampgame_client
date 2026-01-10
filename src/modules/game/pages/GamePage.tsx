@@ -365,7 +365,7 @@ const GamePage = () => {
             onClick={foldCards}
             disabled={folded}
           >
-            GOVNO
+            BOLOTO
           </Button>
         </div>
       </PageLayout.Footer>
