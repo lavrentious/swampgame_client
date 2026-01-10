@@ -156,7 +156,7 @@ const GamePage = () => {
           toast(`Game finished! Congrats, ${msg.payload[0].displayName}!`, {
             icon: "🏆",
           });
-          navigate("/leaderboard", { state: msg.payload });
+          navigate(`/leaderboard/${lobbyId}`, { state: msg.payload });
           break;
 
         case WsEventType.ERROR_PLAYER_ILLEGAL_FOLD_ATTEMPT:
