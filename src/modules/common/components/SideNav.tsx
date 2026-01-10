@@ -4,7 +4,6 @@ import { useCallback, useMemo } from "react";
 import { FaHome, FaShoppingCart, FaUser } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import List from "src/ui/components/List";
-import ListItem from "src/ui/components/ListItem";
 
 const SideNavItem: React.FC<{
   title: string;
@@ -25,15 +24,15 @@ const SideNavItem: React.FC<{
   const active = useMemo(() => location.pathname === url, [location, url]);
 
   return (
-    <ListItem
-      className={clsx(active && "bg-primary/50")}
+    <div
+      className={clsx(active && "bg-primary/50", "m-2 p-3 rounded-xl")}
       onClick={handleNavigate}
     >
       <span className="flex items-center gap-2">
         {icon}
         <span className="text-text-secondary">{title}</span>
       </span>
-    </ListItem>
+    </div>
   );
 };
 
@@ -62,7 +61,7 @@ export const SideNav: React.FC<{ onNavigate?: () => void }> = ({
     <nav className="w-full">
       <h2 className="px-5 py-3 text-sm font-semibold text-text-secondary uppercase tracking-wider">
         <img
-          className="h-10 w-10 inline-block"
+          className="h-10 w-10 inline-block rounded-xl"
           src="https://lavrentious.ru/assets/acorn_shot.png"
           alt="CryptoSwamp"
         />{" "}
