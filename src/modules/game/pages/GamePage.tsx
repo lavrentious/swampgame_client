@@ -65,6 +65,18 @@ const GamePage = () => {
     return currentPlayer?.foldOrderNumber != null;
   }, [cachedLobby, user]);
 
+  const displayPlayers = useMemo(() => {
+    if (!cachedLobby || !user) return [];
+
+    const idx = cachedLobby.players.findIndex((p) => p.userId === user.userId);
+    if (idx === -1) return cachedLobby.players;
+
+    return [
+      ...cachedLobby.players.slice(idx + 1),
+      ...cachedLobby.players.slice(0, idx + 1),
+    ];
+  }, [cachedLobby, user]);
+
   /* -------------------- Countdown Progress -------------------- */
   useEffect(() => {
     if (!lobby) return;
@@ -191,7 +203,7 @@ const GamePage = () => {
 
       <PageLayout.Body className="flex flex-col items-center justify-center gap-5">
         <GameTable
-          players={cachedLobby.players.filter((p) => p.userId !== user?.userId)}
+          players={displayPlayers.filter((p) => p.userId !== user?.userId)}
           iconRotation={roundNumber * (360 / cachedLobby.players.length)}
         />
 
