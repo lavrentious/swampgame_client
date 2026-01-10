@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "src/store";
 import { Badge } from "src/ui/components/Badge";
 import { Button } from "src/ui/components/Button";
 import { Input } from "src/ui/components/form/Input";
+import Modal from "src/ui/components/Modal";
 import { useJoinLobbyMutation } from "../api/lobbies";
 import { CachedLobby, Lobby, LobbyState } from "../api/types";
 
@@ -145,37 +146,43 @@ const LobbyListItem: React.FC<LobbyListItemProps> = ({
         </div>
       </div>
 
-      {passwordModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-surface-alt p-6 rounded-xl w-80 flex flex-col gap-4">
-            <h3 className="text-lg">
-              Enter password for lobby{" "}
-              <span className="font-bold">{lobby.name}</span>
-            </h3>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-            />
-            <div className="flex justify-end gap-2 mt-2">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setPasswordModalOpen(false);
-                  setPassword("");
-                }}
-              >
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={handleJoin}>
-                Join
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={passwordModalOpen}
+        onClose={() => {
+          setPasswordModalOpen(false);
+          setPassword("");
+        }}
+      >
+        <Modal.Header>
+          Enter password for lobby{" "}
+          <span className="font-bold">{lobby.name}</span>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            autoFocus
+          />
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setPasswordModalOpen(false);
+              setPassword("");
+            }}
+          >
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleJoin}>
+            Join
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
