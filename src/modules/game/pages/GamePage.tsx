@@ -4,10 +4,11 @@ import { Navigate, useNavigate, useParams } from "react-router";
 import { formatApiError } from "src/modules/common/api/utils";
 import Header from "src/modules/common/components/Header";
 import {
+  lobbiesApi,
   useGetCachedLobbyQuery,
   useGetLobbyQuery,
 } from "src/modules/lobbies/api/lobbies";
-import { useAppSelector } from "src/store";
+import { useAppDispatch, useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
 import ConnectionIcon from "src/ui/components/ConnectionIcon";
 import PageLayout from "src/ui/components/PageLayout";
@@ -25,6 +26,7 @@ const cardsEqual = (a: Card[], b: Card[]) =>
 
 const GamePage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const { id } = useParams<{ id?: string }>();
   const lobbyId = id ? Number(id) : NaN;
@@ -138,8 +140,30 @@ const GamePage = () => {
 
         case WsEventType.PLAYER_FOLDED_CARDS:
           console.log("Player folded cards", msg.payload);
-          toast(msg.payload, { icon: "🎉" });
-          setFolded(true);
+          if (msg.userId === user?.userId) {
+            toast("You have folded your cards!", { icon: "🃏" });
+            setFolded(true);
+          } else {
+            toast(msg.payload, { icon: "❗️" });
+          }
+
+          dispatch(
+            lobbiesApi.util.updateQueryData(
+              "getCachedLobby",
+              lobbyId,
+              (draft) => {
+                const player = draft.players.find(
+                  (p) => p.userId === msg.userId,
+                );
+                if (player) {
+                  const maxFoldOrderNumber = Math.max(
+                    ...draft.players.map((p) => p.foldOrderNumber ?? 0),
+                  );
+                  player.foldOrderNumber = maxFoldOrderNumber + 1;
+                }
+              },
+            ),
+          );
           break;
 
         case WsEventType.GAME_FIRST_FOLD_PROCESSED:
@@ -152,7 +176,7 @@ const GamePage = () => {
           break;
       }
     },
-    [navigate],
+    [dispatch, lobbyId, navigate, user?.userId],
   );
 
   const { connected, send } = useStomp({
