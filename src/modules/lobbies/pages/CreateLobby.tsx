@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { setUserState } from "src/modules/app/store/appSlice";
 import MainLayout from "src/modules/common/components/MainLayout";
 import { useAppDispatch, useAppSelector } from "src/store";
+import { Checkbox } from "src/ui/components/form/Checkbox";
 import { Input } from "src/ui/components/form/Input";
 import { Slider } from "src/ui/components/form/Slider";
 import LoadingButton from "src/ui/components/LoadingButton";
@@ -13,6 +14,9 @@ const CreateLobby = () => {
   const [lobbyName, setLobbyName] = useState("");
   const [playersAmount, setPlayersAmount] = useState(4);
   const [lobbyTimeout, setLobbyTimeout] = useState(15);
+  const [lobbyPrivate, setLobbyPrivate] = useState<boolean>(false);
+  const [lobbyPassword, setLobbyPassword] = useState<string>("");
+
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
@@ -38,7 +42,8 @@ const CreateLobby = () => {
         hostUserId: userId,
         capacity: playersAmount,
         moveTimeout: lobbyTimeout,
-        isPrivate: false,
+        isPrivate: lobbyPrivate,
+        password: lobbyPrivate ? lobbyPassword : undefined,
       })
         .unwrap()
         .then((res) => {
@@ -51,6 +56,8 @@ const CreateLobby = () => {
       createLobby,
       dispatch,
       lobbyName,
+      lobbyPassword,
+      lobbyPrivate,
       lobbyTimeout,
       navigate,
       playersAmount,
@@ -98,6 +105,23 @@ const CreateLobby = () => {
           value={lobbyTimeout}
           onChange={setLobbyTimeout}
         />
+
+        <hr />
+
+        <Checkbox
+          label="Private"
+          checked={lobbyPrivate}
+          onChange={(e) => setLobbyPrivate(e.target.checked)}
+        />
+        {lobbyPrivate && (
+          <Input
+            placeholder="Enter lobby password"
+            label="Lobby password"
+            type="password"
+            value={lobbyPassword}
+            onChange={(e) => setLobbyPassword(e.target.value)}
+          />
+        )}
       </form>
     </MainLayout>
   );

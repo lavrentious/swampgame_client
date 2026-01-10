@@ -1,11 +1,14 @@
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { FaClock, FaLock, FaUnlock, FaUsers } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { setUserState } from "src/modules/app/store/appSlice";
+import { formatApiError } from "src/modules/common/api/utils";
 import { useAppDispatch, useAppSelector } from "src/store";
 import { Badge } from "src/ui/components/Badge";
+import { Button } from "src/ui/components/Button";
+import { Input } from "src/ui/components/form/Input";
 import { useJoinLobbyMutation } from "../api/lobbies";
 import { CachedLobby, Lobby, LobbyState } from "../api/types";
 
@@ -71,62 +74,109 @@ const LobbyListItem: React.FC<LobbyListItemProps> = ({
   const [joinLobby] = useJoinLobbyMutation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
   const userId = useAppSelector((state) => state.auth.user?.userId);
 
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [password, setPassword] = useState("");
+
+  const handleJoin = async () => {
+    try {
+      await joinLobby({
+        lobbyId: lobby.id,
+        userId: userId!,
+        ...(lobby.isPrivate ? { password } : {}),
+      }).unwrap();
+
+      dispatch(setUserState({ status: "in_lobby", lobbyId: lobby.id }));
+      toast.success(`Joined lobby ${lobby.id}`);
+      navigate(`/lobby/${lobby.id}`);
+    } catch (err: unknown) {
+      toast.error(formatApiError(err!) || "Failed to join lobby");
+    } finally {
+      setPasswordModalOpen(false);
+      setPassword("");
+    }
+  };
+
   return (
-    <div
-      className={clsx(
-        "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer",
-        className,
+    <>
+      <div
+        className={clsx(
+          "bg-surface-alt rounded-2xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer",
+          className,
+        )}
+        {...props}
+        onClick={() => {
+          if (cachedLobby?.lobbyState !== "LS_WAITING_FOR_PLAYERS") return;
+
+          if (!lobby.isPrivate) {
+            handleJoin();
+          } else {
+            setPasswordModalOpen(true);
+          }
+        }}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <span className="font-bold text-lg truncate">
+            {lobby.name} <span className="text-muted">#{lobby.id}</span>
+          </span>
+
+          <Badge
+            colorClass={getLobbyStateDisplay(cachedLobby.lobbyState).colorClass}
+            rounded
+          >
+            {getLobbyStateDisplay(cachedLobby.lobbyState).label}
+          </Badge>
+        </div>
+
+        <div className="flex justify-between text-sm text-gray-200">
+          <span className="flex items-center gap-1">
+            <FaUsers /> {cachedLobby.players.length}/{cachedLobby.capacity}
+          </span>
+
+          <span className="flex items-center gap-1">
+            <FaClock /> {lobby.moveTimeout} sec
+          </span>
+
+          <span className="flex items-center gap-1">
+            {lobby.isPrivate ? <FaLock /> : <FaUnlock />}
+            {lobby.isPrivate ? "Private" : "Public"}
+          </span>
+        </div>
+      </div>
+
+      {passwordModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-surface-alt p-6 rounded-xl w-80 flex flex-col gap-4">
+            <h3 className="text-lg">
+              Enter password for lobby{" "}
+              <span className="font-bold">{lobby.name}</span>
+            </h3>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2 mt-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setPasswordModalOpen(false);
+                  setPassword("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={handleJoin}>
+                Join
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
-      {...props}
-      onClick={() => {
-        if (
-          !lobby.isPrivate &&
-          cachedLobby?.lobbyState === "LS_WAITING_FOR_PLAYERS"
-        ) {
-          // TODO: password handling
-          joinLobby({ lobbyId: lobby.id, userId: userId! })
-            .unwrap()
-            .then(() => {
-              dispatch(setUserState({ status: "in_lobby", lobbyId: lobby.id }));
-              toast.success(`joined lobby ${lobby.id}`);
-              navigate(`/lobby/${lobby.id}`);
-            });
-        }
-      }}
-    >
-      <div className="flex justify-between items-center mb-2">
-        <span className="font-bold text-lg truncate">
-          {lobby.name} <span className="text-muted">#{lobby.id}</span>
-        </span>
-
-        {(() => {
-          const config = getLobbyStateDisplay(cachedLobby.lobbyState);
-          return (
-            <Badge colorClass={config.colorClass} rounded>
-              {config.label}
-            </Badge>
-          );
-        })()}
-      </div>
-
-      <div className="flex justify-between text-sm text-gray-200">
-        <span className="flex items-center gap-1">
-          <FaUsers /> {cachedLobby.players.length}/{cachedLobby.capacity}
-        </span>
-
-        <span className="flex items-center gap-1">
-          <FaClock /> {lobby.moveTimeout} sec
-        </span>
-
-        <span className="flex items-center gap-1">
-          {lobby.isPrivate ? <FaLock /> : <FaUnlock />}
-          {lobby.isPrivate ? "Private" : "Public"}
-        </span>
-      </div>
-    </div>
+    </>
   );
 };
 
