@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, useParams } from "react-router";
+import toast from "react-hot-toast";
+import { Navigate, useNavigate, useParams } from "react-router";
 import Header from "src/modules/common/components/Header";
 import {
   useGetCachedLobbyQuery,
@@ -22,6 +23,8 @@ const cardsEqual = (a: Card[], b: Card[]) =>
   a.every((c, i) => c.value === b[i].value && c.suit === b[i].suit);
 
 const GamePage = () => {
+  const navigate = useNavigate();
+
   const { id } = useParams<{ id?: string }>();
   const lobbyId = id ? Number(id) : NaN;
 
@@ -91,39 +94,52 @@ const GamePage = () => {
   }, [lastSwapTimestamp, lobby]);
 
   /* -------------------- WebSocket -------------------- */
-  const onSocketMsg = useCallback((msg: WsMessage) => {
-    switch (msg.eventType) {
-      case WsEventType.PLAYER_RECIEVED_CARD: {
-        setRoundNumber((rn) => rn + 1);
-        setLastSwapTimestamp(Date.now());
+  const onSocketMsg = useCallback(
+    (msg: WsMessage) => {
+      console.log("game ws msg", msg);
+      switch (msg.eventType) {
+        case WsEventType.PLAYER_RECIEVED_CARD: {
+          console.log("Player received card", msg.payload);
+          setRoundNumber((rn) => rn + 1);
+          setLastSwapTimestamp(Date.now());
 
-        setUserCards((prev) => {
-          if (!prev) return null;
-          const newCard = parsePlainCard(msg.payload.card.value);
-          return [
-            ...prev.slice(0, msg.payload.idx),
-            newCard,
-            ...prev.slice(msg.payload.idx + 1),
-          ];
-        });
+          setUserCards((prev) => {
+            if (!prev) return null;
+            const newCard = parsePlainCard(msg.payload.card.value);
+            return [
+              ...prev.slice(0, msg.payload.idx),
+              newCard,
+              ...prev.slice(msg.payload.idx + 1),
+            ];
+          });
 
-        const idx = chosenCardIdxRef.current ?? msg.payload.idx;
-        chooseCardRef.current(idx);
-        break;
+          const idx = chosenCardIdxRef.current ?? msg.payload.idx;
+          chooseCardRef.current(idx);
+          break;
+        }
+
+        case WsEventType.PLAYER_CHOSE_CARD:
+          console.log("Player chose card", msg.payload);
+          break;
+
+        case WsEventType.GAME_STARTED:
+          console.log(msg.payload.message);
+          break;
+
+        case WsEventType.GAME_FINISHED:
+          console.log("Game finished, leaderboard:", msg.payload);
+          toast(`Game finished! Congrats, ${msg.payload[0].displayName}!`, {
+            icon: "🏆",
+          });
+          navigate("/leaderboard", { state: msg.payload });
+          break;
+
+        default:
+          break;
       }
-
-      case WsEventType.PLAYER_CHOSE_CARD:
-        console.log("Player chose card", msg.payload);
-        break;
-
-      case WsEventType.GAME_STARTED:
-        console.log(msg.payload.message);
-        break;
-
-      default:
-        break;
-    }
-  }, []);
+    },
+    [navigate],
+  );
 
   const { connected, send } = useStomp({
     url: "/user/queue/private",

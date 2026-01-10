@@ -13,9 +13,15 @@ export interface GameStartedPayload {
   message: string;
 }
 
-export interface GameFinishedPayload {
-  leaderboard: string[]; // display names?
-}
+export type LeaderboardEntry = {
+  userId: number;
+  displayName: string;
+  place: number;
+  moneyEarned: number;
+  expEarned: number;
+};
+
+export type GameFinishedPayload = LeaderboardEntry[];
 
 export interface ErrorPayload {
   message: string;

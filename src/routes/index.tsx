@@ -3,6 +3,7 @@ import NotFoundPage from "src/modules/common/pages/NotFoundPage";
 import SettingsPage from "src/modules/common/pages/SettingsPage";
 import TestPage from "src/modules/common/pages/TestPage";
 import GamePage from "src/modules/game/pages/GamePage";
+import LeaderboardPage from "src/modules/game/pages/LeaderboardPage";
 import CreateLobby from "src/modules/lobbies/pages/CreateLobby";
 import MainPage from "src/modules/lobbies/pages/LobbiesListPage";
 import LobbyWaitingPage from "src/modules/lobbies/pages/LobbyWaitingPage";
@@ -17,6 +18,7 @@ const routes: Route[] = [
   { element: <MainPage />, path: "/" },
   { element: <ShopPage />, path: "/shop" },
   { element: <GamePage />, path: "/game/:id" },
+  { element: <LeaderboardPage />, path: "/leaderboard" },
   { element: <ProfilePage />, path: "/profile" },
   { element: <CreateLobby />, path: "/create-lobby" },
   { element: <LobbyWaitingPage />, path: "/lobby/:id" },
