@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Navigate, useNavigate, useParams } from "react-router";
+import { formatApiError } from "src/modules/common/api/utils";
 import Header from "src/modules/common/components/Header";
 import {
   useGetCachedLobbyQuery,
@@ -41,6 +42,8 @@ const GamePage = () => {
     data: cachedLobby,
     isLoading: isLoadingCachedLobby,
     refetch: refetchCachedLobby,
+    isError: isErrorCachedLobby,
+    error: errorCachedLobby,
   } = useGetCachedLobbyQuery(lobbyId, {
     skip: !isAuth || Number.isNaN(lobbyId),
   });
@@ -139,6 +142,12 @@ const GamePage = () => {
           setFolded(true);
           break;
 
+        case WsEventType.GAME_FIRST_FOLD_PROCESSED:
+          console.log("First fold processed", msg.payload);
+          toast(msg.payload, { icon: "🎉" });
+          console.log(`user ${msg.userId} folded first!`);
+          break;
+
         default:
           break;
       }
@@ -181,6 +190,14 @@ const GamePage = () => {
     if (!freshLobby) return;
 
     console.log("syncing game state...");
+
+    // sync last swap timestamp
+    console.log(
+      `last swap: ${freshLobby.lastSwapTimestamp} (${(Date.now() - freshLobby.lastSwapTimestamp!) / 1000}s ago)`,
+    );
+    if (freshLobby.lastSwapTimestamp) {
+      setLastSwapTimestamp(freshLobby.lastSwapTimestamp);
+    }
 
     // sync folded state
     const currentPlayer = freshLobby.players.find(
@@ -226,6 +243,14 @@ const GamePage = () => {
           showBackButton={false}
           rightSlot={<ConnectionIcon connected={connected} />}
         />
+        {isErrorCachedLobby && (
+          <div className="text-red-500 text-center">
+            <h5>
+              Error loading lobby data: {formatApiError(errorCachedLobby)}
+            </h5>
+            <a href="/">Go back</a>
+          </div>
+        )}
       </PageLayout.Header>
 
       <PageLayout.Body className="flex flex-col items-center justify-center gap-5">
