@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router";
 import MainLayout from "src/modules/common/components/MainLayout";
 import UserPfp from "src/modules/users/components/UserPfp";
 
-import { useLaunchParams } from "@telegram-apps/sdk-react";
 import { useMemo } from "react";
 import toast from "react-hot-toast";
 import { FaUserCheck, FaUserPlus } from "react-icons/fa";
@@ -56,9 +55,6 @@ const ProfilePage = () => {
   const [offerFriendship, { isLoading: isOfferFriendshipLoading }] =
     useOfferFriendshipMutation();
 
-  const { tgWebAppData: data } = useLaunchParams();
-  const photoUrl = data?.user?.photo_url;
-
   const isSelf = useMemo(() => {
     if (!user || !authUser) return;
     return user.id === authUser.userId;
@@ -84,7 +80,7 @@ const ProfilePage = () => {
         <UserPfp
           className="mx-auto mb-5"
           size={96}
-          photoUrl={isSelf ? photoUrl : undefined}
+          photoUrl={user?.photoUrl || undefined}
         />
 
         {isLoading && (
