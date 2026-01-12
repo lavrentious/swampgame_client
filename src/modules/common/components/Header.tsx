@@ -1,8 +1,10 @@
-import { useLaunchParams } from "@telegram-apps/sdk-react";
+import { skipToken } from "@reduxjs/toolkit/query";
 import React from "react";
 import { FiMenu } from "react-icons/fi";
 import { useNavigate } from "react-router";
+import { useFindUserByIdQuery } from "src/modules/users/api/users";
 import UserPfp from "src/modules/users/components/UserPfp";
+import { useAppSelector } from "src/store";
 import { Button } from "src/ui/components/Button";
 import BackButton from "./BackButton";
 
@@ -42,8 +44,8 @@ const Header: React.FC<HeaderProps> = ({
 
   const shouldShowMenu = showMenuButton && onMenuClick;
 
-  const { tgWebAppData: data } = useLaunchParams();
-  const photoUrl = data?.user?.photo_url;
+  const authUser = useAppSelector((state) => state.auth.user);
+  const { data: user } = useFindUserByIdQuery(authUser?.userId ?? skipToken);
 
   return (
     <header
@@ -79,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {showUserPfp && (
           <UserPfp
-            photoUrl={photoUrl}
+            photoUrl={user?.photoUrl ?? undefined}
             onClick={() => navigate("/profile")}
             size={size === "sm" ? 32 : undefined}
           />

@@ -5,6 +5,7 @@ export type User = {
   level: number;
   xp: number;
   balance: number;
+  photoUrl?: string | null;
 };
 
 export interface FriendshipRequest {

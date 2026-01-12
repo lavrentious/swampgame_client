@@ -25,6 +25,17 @@ export const usersApi = createApi({
       providesTags: (_result, _error, id) => [{ type: "User", id }],
     }),
 
+    setPhotoUrl: build.mutation<void, { userId: number; photoUrl: string }>({
+      query: ({ userId, photoUrl }) => ({
+        url: `/${userId}/photo`,
+        method: "POST",
+        body: { photoUrl },
+      }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: "User", id: userId },
+      ],
+    }),
+
     // -------------------- Friendships --------------------
     getAllFriendships: build.query<Friendship[], number>({
       query: (userId) => `/friendships/${userId}`,
@@ -126,6 +137,7 @@ export const usersApi = createApi({
 export const {
   useFindAllUsersQuery,
   useFindUserByIdQuery,
+  useSetPhotoUrlMutation,
   useGetAllFriendshipsQuery,
   useGetAllFriendsQuery,
   useGetIncomingFriendRequestsQuery,
