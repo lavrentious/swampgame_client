@@ -1,6 +1,10 @@
+import { skipToken } from "@reduxjs/toolkit/query";
 import clsx from "clsx";
+import { useMemo } from "react";
+import { useFindUserByIdQuery } from "src/modules/users/api/users";
 
 type PlayerAvatarProps = {
+  userId?: number;
   name?: string;
   imageUrl?: string;
   isHost?: boolean;
@@ -8,6 +12,7 @@ type PlayerAvatarProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const PlayerPfp: React.FC<PlayerAvatarProps> = ({
+  userId,
   name,
   imageUrl,
   isHost,
@@ -15,6 +20,15 @@ const PlayerPfp: React.FC<PlayerAvatarProps> = ({
   className,
   ...props
 }) => {
+  const { data: user } = useFindUserByIdQuery(
+    userId && !imageUrl ? userId : skipToken,
+  );
+
+  const url = useMemo(() => {
+    if (imageUrl) return imageUrl;
+    return user?.photoUrl;
+  }, [imageUrl, user?.photoUrl]);
+
   return (
     <div
       className={clsx("flex flex-col items-center gap-2", className)}
@@ -26,9 +40,9 @@ const PlayerPfp: React.FC<PlayerAvatarProps> = ({
           isWaiting ? "bg-white/10" : "bg-primary",
         )}
       >
-        {imageUrl ? (
+        {url ? (
           <img
-            src={imageUrl}
+            src={url}
             alt={name}
             className="w-full h-full rounded-full object-cover"
           />

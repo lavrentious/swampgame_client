@@ -17,6 +17,7 @@ const PlayersGrid: React.FC<PlayersGridProps> = ({ players, hostUserId }) => {
       {players.map((p) => (
         <PlayerPfp
           key={p.userId}
+          userId={p.userId}
           name={p.displayName}
           isHost={p.userId === hostUserId}
           onClick={() => navigate(`/profile/${p.userId}`)}
