@@ -177,12 +177,15 @@ const LobbyWaitingPage = () => {
                       toast.success("lobby started");
                     });
                 }}
+                disabled={cachedLobby.players.length < 3}
               >
                 Start
               </Button>
             ) : (
               <h6 className="text-center">
-                Waiting for host to start the game...
+                {cachedLobby.players.length < 3
+                  ? "Waiting for at least 3 players..."
+                  : "Waiting for host to start the game..."}
               </h6>
             )}
           </div>

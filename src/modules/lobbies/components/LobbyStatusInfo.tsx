@@ -23,7 +23,9 @@ const LobbyStatusInfo: React.FC<LobbyStatusInfoProps> = ({
         <div className="text-white/70">
           You are the host
           <br />
-          You can run the game
+          {current < 3
+            ? "Waiting for at least 3 players..."
+            : "You can run the game"}
         </div>
       )}
     </div>
