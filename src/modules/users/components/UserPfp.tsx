@@ -23,9 +23,7 @@ const UserPfp: React.FC<UserPfpProps> = ({
         )}
         style={{ width: size, height: size }}
         {...props}
-      >
-        {label}
-      </div>
+      ></div>
     );
   }
 

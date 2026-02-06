@@ -7,6 +7,7 @@ import {
   useDeleteFriendshipMutation,
   useFindUserByIdQuery,
 } from "../api/users";
+import UserPfp from "./UserPfp";
 
 type Props = {
   friendship: Friendship;
@@ -43,9 +44,16 @@ const FriendListEntry = ({ friendship, currentUserId, className }: Props) => {
       onClick={() => user && navigate(`/profile/${user.id}`)}
     >
       <div className="flex justify-between items-center">
-        <span className="font-bold text-lg truncate">
-          {user ? user.username : `User #${otherUserId}`}
-        </span>
+        <div className="flex items-center">
+          <UserPfp
+            photoUrl={user?.photoUrl || undefined}
+            label={user?.username}
+            className="mr-2"
+          />
+          <span className="font-bold text-lg truncate">
+            {user ? user.username : `User #${otherUserId}`}
+          </span>
+        </div>
 
         <div className="flex items-center gap-2">
           <LoadingButton
