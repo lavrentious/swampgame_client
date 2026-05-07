@@ -1,69 +1,52 @@
-# React + TypeScript + Vite
+# SwampGame Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Telegram Mini App (TMA) frontend for SwampGame -- a multiplayer card game played inside Telegram.
 
-Currently, two official plugins are available:
+## Links
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Bot: [@cryptoswampbot](https://t.me/cryptoswampbot)
+- Backend repo: [ASVolokitin/swampgame_server](https://github.com/ASVolokitin/swampgame_server)
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **React 19** + TypeScript, Vite, Tailwind CSS v4
+- **Redux Toolkit** for state management
+- **STOMP over SockJS** for real-time game and lobby events
+- **Telegram Apps SDK** for TMA integration
+- **Bun** as package manager
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Features
+
+- Browse and create game lobbies
+- Real-time lobby waiting room and in-game table via WebSocket
+- Leaderboard per game
+- Friends list and friend requests
+- User profiles with Telegram profile photos
+- In-game shop
+
+## Getting Started
+
+```bash
+bun install
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Copy `.env.development` and adjust as needed:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | REST API base URL |
+| `VITE_API_WS_URL` | WebSocket endpoint |
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `bun run dev` | Start dev server |
+| `bun run build` | Type-check and build for production |
+| `bun run lint` | Run ESLint |
+| `bun run preview` | Preview production build |
