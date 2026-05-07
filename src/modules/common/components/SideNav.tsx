@@ -70,7 +70,7 @@ export const SideNav: React.FC<{ onNavigate?: () => void }> = ({
       <h2 className="px-5 py-3 text-sm font-semibold text-text-secondary uppercase tracking-wider">
         <img
           className="h-10 w-10 inline-block rounded-xl"
-          src="https://lavrentious.ru/assets/acorn_shot.png"
+          src="https://lavrent.dog/assets/acorn_shot.png"
           alt="CryptoSwamp"
         />{" "}
         CryptoSwamp

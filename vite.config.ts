@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
-    allowedHosts: ["swamp.lavrentious.ru", "localhost"],
+    allowedHosts: ["swamp.lavrent.dog", "localhost"],
   },
   plugins: [react(), tailwindcss()],
   resolve: {
